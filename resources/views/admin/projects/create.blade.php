@@ -48,25 +48,6 @@
                 @enderror
             </div>
 
-            <!-- Project Type -->
-            <div>
-                <label for="project_type" class="block text-sm font-medium text-gray-900 mb-2">Project Type *</label>
-                <select id="project_type" name="project_type" required
-                    class="w-full rounded-lg px-4 py-2 text-sm focus:outline-none transition-all"
-                    style="background: white; border: 1px solid #e5e5e5; color: #1b1b18;">
-                    <option value="">Select project type...</option>
-                    <option value="historical" {{ old('project_type') === 'historical' ? 'selected' : '' }}>
-                        Historical (Data source for rates)
-                    </option>
-                    <option value="forecast" {{ old('project_type') === 'forecast' ? 'selected' : '' }}>
-                        Forecast (New estimate using rates)
-                    </option>
-                </select>
-                @error('project_type')
-                    <p class="text-sm mt-1" style="color: #ef4444;">{{ $message }}</p>
-                @enderror
-            </div>
-
             <!-- Region -->
             <div>
                 <label for="region_id" class="block text-sm font-medium text-gray-900 mb-2">Region *</label>

@@ -1,6 +1,16 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="text-2xl font-bold text-gray-900">Analytics & Rate Library</h2>
+        <div class="flex items-center justify-between">
+            <h2 class="text-2xl font-bold text-gray-900">Analytics & Rate Library</h2>
+            @if(auth()->user()->role === 'admin')
+                <form method="POST" action="{{ route('admin.rates.recalculate') }}">
+                    @csrf
+                    <button type="submit" class="rounded-lg bg-slate-700 px-4 py-2 text-sm font-medium text-white hover:bg-slate-600 transition">
+                        Recalculate Rates
+                    </button>
+                </form>
+            @endif
+        </div>
     </x-slot>
 
     <div class="space-y-8">

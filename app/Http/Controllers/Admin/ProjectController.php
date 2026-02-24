@@ -24,6 +24,16 @@ class ProjectController extends Controller
         return view('admin.projects.index', compact('historicalProjects', 'forecastProjects'));
     }
 
+    public function historical()
+    {
+        $historicalProjects = Project::with('region')
+            ->where('project_type', 'historical')
+            ->orderBy('name')
+            ->get();
+
+        return view('admin.projects.historical', compact('historicalProjects'));
+    }
+
     public function create()
     {
         $regions = Region::orderBy('name')->get();
@@ -36,11 +46,13 @@ class ProjectController extends Controller
             'project_id' => 'required|string|unique:projects,project_id',
             'unique_id' => 'required|string|unique:projects,unique_id',
             'name' => 'required|string',
-            'project_type' => 'required|in:historical,forecast',
             'region_id' => 'required|exists:regions,id',
             'budget_cost' => 'nullable|numeric|min:0',
             'notes' => 'nullable|string',
         ]);
+
+        // New projects created via form are always forecast projects
+        $validated['project_type'] = 'forecast';
 
         Project::create($validated);
 

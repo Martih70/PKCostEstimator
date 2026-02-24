@@ -3,6 +3,7 @@
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EstimatorController;
+use App\Http\Controllers\ProjectReportController;
 use App\Http\Controllers\AnalyticsController;
 use App\Http\Controllers\Admin\TransactionController;
 use App\Http\Controllers\Admin\ProjectController;
@@ -23,6 +24,27 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/estimator', [EstimatorController::class, 'index'])
         ->middleware('role:cost_manager,admin')
         ->name('estimator.index');
+    Route::get('/estimator/{projectId}', [EstimatorController::class, 'show'])
+        ->middleware('role:cost_manager,admin')
+        ->name('estimator.show');
+    Route::post('/estimator/{projectId}/save', [EstimatorController::class, 'saveEstimate'])
+        ->middleware('role:cost_manager,admin')
+        ->name('estimator.save');
+
+    // Project Report (Forecast) - accessible to cost_manager and admin
+    Route::get('/project/{projectId}/report', [ProjectReportController::class, 'show'])
+        ->middleware('role:cost_manager,admin')
+        ->name('project.report');
+
+    // Project Reports (Historical) - index - accessible to cost_manager and admin
+    Route::get('/reports/historical', [ProjectReportController::class, 'historicalIndex'])
+        ->middleware('role:cost_manager,admin')
+        ->name('project.reports-historical');
+
+    // Project Report (Historical) - detail - accessible to cost_manager and admin
+    Route::get('/project/{projectId}/report-historical', [ProjectReportController::class, 'historical'])
+        ->middleware('role:cost_manager,admin')
+        ->name('project.report-historical');
 
     // Analytics - accessible to reviewer and admin
     Route::get('/analytics', [AnalyticsController::class, 'index'])
@@ -43,6 +65,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         // Projects
         Route::get('/projects', [ProjectController::class, 'index'])->name('admin.projects.index');
+        Route::get('/projects/historical', [ProjectController::class, 'historical'])->name('admin.projects.historical');
         Route::get('/projects/create', [ProjectController::class, 'create'])->name('admin.projects.create');
         Route::post('/projects', [ProjectController::class, 'store'])->name('admin.projects.store');
         Route::put('/projects/{id}', [ProjectController::class, 'update'])->name('admin.projects.update');

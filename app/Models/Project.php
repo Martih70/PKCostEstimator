@@ -6,11 +6,12 @@ use Illuminate\Database\Eloquent\Model;
 
 class Project extends Model
 {
-    protected $fillable = ['project_id', 'project_nr', 'unique_id', 'project_type', 'name', 'location', 'city_area', 'region_id', 'gross_floor_area', 'budget_cost', 'notes', 'exclude_from_estimator', 'is_overhead_centre'];
+    protected $fillable = ['project_id', 'project_nr', 'unique_id', 'project_type', 'name', 'location', 'city_area', 'region_id', 'gross_floor_area', 'budget_cost', 'cost_estimate', 'notes', 'exclude_from_estimator', 'is_overhead_centre'];
 
     protected $casts = [
         'gross_floor_area' => 'decimal:2',
         'budget_cost' => 'decimal:2',
+        'cost_estimate' => 'decimal:2',
         'exclude_from_estimator' => 'boolean',
         'is_overhead_centre' => 'boolean',
     ];

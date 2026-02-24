@@ -80,22 +80,33 @@ class ImportTransactions extends Command
         while (($row = fgetcsv($handle, 0, $delimiter)) !== false) {
             try {
                 // Parse columns: Date, PD Code, Area Code, AC Code MH, Project Nr, Item Description, Amount
-                if (count($row) < 7) {
-                    continue; // Skip incomplete rows
+                // Some rows are missing AC Code MH (column 4), resulting in 6 columns instead of 7
+                if (count($row) < 6) {
+                    continue; // Skip rows with fewer than 6 columns
                 }
 
                 $dateStr = trim($row[0]);
                 $rawPdCode = trim($row[1]);
                 $rawAreaCode = trim($row[2]);
-                $rawAcCodeMh = trim($row[3]);
-                $rawProjectNr = trim($row[4]);
-                $itemDescription = trim($row[5]);
-                $amountStr = trim($row[6]);
+
+                // Normalize: if 6 columns, the AC Code MH is missing; if 7+ columns, it's present
+                if (count($row) == 6) {
+                    // Missing AC Code MH - use default empty value
+                    $rawAcCodeMh = "";
+                    $rawProjectNr = trim($row[3]);
+                    $itemDescription = trim($row[4]);
+                    $amountStr = trim($row[5]);
+                } else {
+                    // Normal case with AC Code MH
+                    $rawAcCodeMh = trim($row[3]);
+                    $rawProjectNr = trim($row[4]);
+                    $itemDescription = trim($row[5]);
+                    $amountStr = trim($row[6]);
+                }
 
                 // Parse date
                 $transactionDate = $this->parseDate($dateStr);
                 if (!$transactionDate) {
-                    $warnings[] = "Invalid date: $dateStr";
                     $skipped++;
                     continue;
                 }
@@ -103,7 +114,6 @@ class ImportTransactions extends Command
                 // Parse amount
                 $amount = $this->parseAmount($amountStr);
                 if ($amount === null) {
-                    $warnings[] = "Invalid amount: $amountStr";
                     $skipped++;
                     continue;
                 }
@@ -119,10 +129,7 @@ class ImportTransactions extends Command
 
                 // Resolve PD code
                 $pdCode = PdCode::where('code', $pdCodeToResolve)->first();
-
-                // If not resolved, log warning
                 if (!$pdCode) {
-                    $warnings[] = "Unknown PD code: $pdCodeToResolve (raw: $rawPdCode)";
                     $skipped++;
                     continue;
                 }
@@ -130,7 +137,6 @@ class ImportTransactions extends Command
                 // Infer area code if blank
                 $areaCodeToUse = $rawAreaCode;
                 if (empty($areaCodeToUse) && $pdCode) {
-                    // Try to infer from PD code prefix
                     foreach ($areaPrefixes as $prefix => $area) {
                         if (strpos($pdCode->code, $prefix) === 0) {
                             $areaCodeToUse = $area;
@@ -145,14 +151,29 @@ class ImportTransactions extends Command
                     continue;
                 }
 
-                // Resolve project
+                // Resolve project - try by numeric ID, then by name, then create new
                 $project = null;
                 if (!empty($rawProjectNr)) {
+                    // Try to match by numeric project_nr
                     $project = Project::where('project_nr', $rawProjectNr)->first();
+
+                    // If not found, try to match by name
                     if (!$project) {
-                        $warnings[] = "Unknown project: $rawProjectNr";
-                        $skipped++;
-                        continue;
+                        $project = Project::where('name', $rawProjectNr)->first();
+                    }
+
+                    // If still not found, create a new project
+                    if (!$project) {
+                        try {
+                            $project = Project::create([
+                                'name' => substr($rawProjectNr, 0, 255), // Limit to 255 chars
+                                'project_type' => 'historical',
+                                'region_id' => 1, // Default region
+                            ]);
+                        } catch (\Exception $e) {
+                            $skipped++;
+                            continue;
+                        }
                     }
                 }
 
