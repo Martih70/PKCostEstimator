@@ -15,31 +15,31 @@
         @vite(['resources/css/app.css', 'resources/js/app.js'])
 
         <style>
-            /* Page background — deeper tint so white cards pop */
+            /* Page background — softened 15% toward white */
             body {
-                background: linear-gradient(160deg, #e8eeff 0%, #dde6ff 40%, #e4eeff 100%) !important;
+                background: linear-gradient(160deg, #ebf1ff 0%, #e2eaff 40%, #e8f1ff 100%) !important;
                 background-attachment: fixed !important;
             }
 
-            /* Card — resting shadow is already visible, hover lifts dramatically */
+            /* Card */
             .card {
                 background: white;
                 border: 1px solid rgba(0,0,0,0.06);
                 border-radius: 14px;
-                box-shadow: 0 2px 8px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.06);
+                box-shadow: 0 4px 14px rgba(0,0,0,0.12), 0 1px 4px rgba(0,0,0,0.08);
                 transition: transform 0.2s ease, box-shadow 0.2s ease;
             }
             .card:hover {
-                transform: translateY(-4px);
-                box-shadow: 0 20px 48px rgba(0,0,0,0.14), 0 6px 16px rgba(0,0,0,0.08), 0 1px 4px rgba(0,0,0,0.05);
+                transform: translateY(-5px);
+                box-shadow: 0 28px 64px rgba(0,0,0,0.18), 0 8px 20px rgba(0,0,0,0.10), 0 1px 4px rgba(0,0,0,0.06);
             }
 
-            /* Static card (no hover lift) — still has solid resting shadow */
+            /* Static card */
             .card-static {
                 background: white;
                 border: 1px solid rgba(0,0,0,0.06);
                 border-radius: 14px;
-                box-shadow: 0 2px 8px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.06);
+                box-shadow: 0 4px 14px rgba(0,0,0,0.12), 0 1px 4px rgba(0,0,0,0.08);
             }
 
             /* Table card */
@@ -48,7 +48,7 @@
                 border: 1px solid rgba(0,0,0,0.06);
                 border-radius: 14px;
                 overflow: hidden;
-                box-shadow: 0 2px 8px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.06);
+                box-shadow: 0 4px 14px rgba(0,0,0,0.12), 0 1px 4px rgba(0,0,0,0.08);
             }
 
             /* Sidebar nav link hover */
@@ -66,7 +66,7 @@
             }
             .btn-primary:hover {
                 transform: translateY(-2px);
-                box-shadow: 0 8px 20px rgba(80, 91, 147, 0.45);
+                box-shadow: 0 10px 28px rgba(80, 91, 147, 0.55);
             }
             .btn-primary:active {
                 transform: translateY(0);
@@ -77,14 +77,14 @@
             .topbar {
                 background: white;
                 border-bottom: 1px solid rgba(0,0,0,0.06);
-                box-shadow: 0 4px 20px rgba(0,0,0,0.08), 0 1px 4px rgba(0,0,0,0.05);
+                box-shadow: 0 6px 28px rgba(0,0,0,0.12), 0 1px 4px rgba(0,0,0,0.07);
             }
 
             /* Sidebar */
             .sidebar {
                 background: white;
                 border-right: 1px solid rgba(0,0,0,0.06);
-                box-shadow: 4px 0 24px rgba(0,0,0,0.08);
+                box-shadow: 6px 0 32px rgba(0,0,0,0.12);
             }
 
             /* Section labels */
