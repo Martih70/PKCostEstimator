@@ -15,9 +15,9 @@
         @vite(['resources/css/app.css', 'resources/js/app.js'])
 
         <style>
-            /* Page background — softened 15% toward white */
+            /* Page background */
             body {
-                background: linear-gradient(160deg, #ebf1ff 0%, #e2eaff 40%, #e8f1ff 100%) !important;
+                background: linear-gradient(160deg, #f4f6ff 0%, #eef3ff 40%, #f2f6ff 100%) !important;
                 background-attachment: fixed !important;
             }
 
@@ -26,12 +26,12 @@
                 background: white;
                 border: 1px solid rgba(0,0,0,0.06);
                 border-radius: 14px;
-                box-shadow: 0 6px 20px rgba(0,0,0,0.17), 0 2px 6px rgba(0,0,0,0.11);
+                box-shadow: 0 8px 28px rgba(0,0,0,0.22), 0 3px 8px rgba(0,0,0,0.14);
                 transition: transform 0.2s ease, box-shadow 0.2s ease;
             }
             .card:hover {
                 transform: translateY(-5px);
-                box-shadow: 0 40px 90px rgba(0,0,0,0.25), 0 12px 28px rgba(0,0,0,0.14), 0 2px 6px rgba(0,0,0,0.08);
+                box-shadow: 0 50px 100px rgba(0,0,0,0.32), 0 16px 36px rgba(0,0,0,0.18), 0 3px 8px rgba(0,0,0,0.10);
             }
 
             /* Static card */
@@ -39,7 +39,7 @@
                 background: white;
                 border: 1px solid rgba(0,0,0,0.06);
                 border-radius: 14px;
-                box-shadow: 0 6px 20px rgba(0,0,0,0.17), 0 2px 6px rgba(0,0,0,0.11);
+                box-shadow: 0 8px 28px rgba(0,0,0,0.22), 0 3px 8px rgba(0,0,0,0.14);
             }
 
             /* Table card */
@@ -48,7 +48,7 @@
                 border: 1px solid rgba(0,0,0,0.06);
                 border-radius: 14px;
                 overflow: hidden;
-                box-shadow: 0 6px 20px rgba(0,0,0,0.17), 0 2px 6px rgba(0,0,0,0.11);
+                box-shadow: 0 8px 28px rgba(0,0,0,0.22), 0 3px 8px rgba(0,0,0,0.14);
             }
 
             /* Sidebar nav link hover */
@@ -66,7 +66,7 @@
             }
             .btn-primary:hover {
                 transform: translateY(-2px);
-                box-shadow: 0 14px 40px rgba(80, 91, 147, 0.75);
+                box-shadow: 0 18px 50px rgba(80, 91, 147, 0.85);
             }
             .btn-primary:active {
                 transform: translateY(0);
@@ -77,14 +77,14 @@
             .topbar {
                 background: white;
                 border-bottom: 1px solid rgba(0,0,0,0.06);
-                box-shadow: 0 8px 40px rgba(0,0,0,0.17), 0 2px 6px rgba(0,0,0,0.10);
+                box-shadow: 0 10px 50px rgba(0,0,0,0.22), 0 2px 8px rgba(0,0,0,0.12);
             }
 
             /* Sidebar */
             .sidebar {
                 background: white;
                 border-right: 1px solid rgba(0,0,0,0.06);
-                box-shadow: 8px 0 45px rgba(0,0,0,0.17);
+                box-shadow: 10px 0 55px rgba(0,0,0,0.22);
             }
 
             /* Section labels */

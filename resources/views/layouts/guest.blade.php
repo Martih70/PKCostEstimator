@@ -15,7 +15,7 @@
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
     <body class="font-sans antialiased" style="background: linear-gradient(135deg, #f7fcff 0%, #f0f7ff 100%); color: #1b1b18; min-height: 100vh;">
-        <div class="min-h-screen flex items-center justify-center px-4 py-12" style="background: linear-gradient(160deg, #ebf1ff 0%, #e2eaff 40%, #e8f1ff 100%);">
+        <div class="min-h-screen flex items-center justify-center px-4 py-12" style="background: linear-gradient(160deg, #f4f6ff 0%, #eef3ff 40%, #f2f6ff 100%);">
             <div class="w-full max-w-sm">
                 <!-- Brand -->
                 <div class="flex flex-col items-center mb-8">
@@ -27,7 +27,7 @@
                 </div>
 
                 <!-- Card -->
-                <div class="bg-white rounded-2xl px-8 py-8" style="border: 1px solid rgba(0,0,0,0.06); box-shadow: 0 17px 68px rgba(0,0,0,0.25), 0 6px 17px rgba(0,0,0,0.14);">
+                <div class="bg-white rounded-2xl px-8 py-8" style="border: 1px solid rgba(0,0,0,0.06); box-shadow: 0 22px 80px rgba(0,0,0,0.32), 0 8px 24px rgba(0,0,0,0.18);">
                     {{ $slot }}
                 </div>
             </div>
