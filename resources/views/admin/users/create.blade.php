@@ -14,7 +14,7 @@
     </x-slot>
 
     <div class="max-w-lg">
-        <div class="bg-white rounded-xl border border-gray-200 px-6 py-6">
+        <div class="card-static px-6 py-6">
             <form method="POST" action="{{ route('admin.users.store') }}" class="space-y-5">
                 @csrf
 

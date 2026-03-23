@@ -27,7 +27,7 @@
         </div>
     @endif
 
-    <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
+    <div class="table-card">
         <table class="min-w-full divide-y divide-gray-200">
             <thead>
                 <tr class="bg-gray-50">

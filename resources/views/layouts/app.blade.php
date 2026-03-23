@@ -15,6 +15,20 @@
         @vite(['resources/css/app.css', 'resources/js/app.js'])
 
         <style>
+            /* ── Border tokens ──────────────────────────────────
+               --border-strong : structural separators (topbar, sidebar)
+               --border-card   : card / container outlines
+               --border-inner  : table rows, section dividers inside cards
+               --border-input  : form inputs
+            ──────────────────────────────────────────────────── */
+            :root {
+                --border-strong : #b8bdd4;
+                --border-card   : #c8cdd e;   /* overridden below as hex */
+                --border-inner  : #e4e6f0;
+                --border-input  : #c4c8dc;
+                --border-focus  : #505b93;
+            }
+
             /* Page background */
             body {
                 background: linear-gradient(160deg, #f4f6ff 0%, #eef3ff 40%, #f2f6ff 100%) !important;
@@ -24,7 +38,7 @@
             /* Card */
             .card {
                 background: white;
-                border: 1px solid rgba(0,0,0,0.06);
+                border: 1.5px solid #c8cdde;
                 border-radius: 14px;
                 box-shadow: 0 8px 28px rgba(0,0,0,0.22), 0 3px 8px rgba(0,0,0,0.14);
                 transition: transform 0.2s ease, box-shadow 0.2s ease;
@@ -37,7 +51,7 @@
             /* Static card */
             .card-static {
                 background: white;
-                border: 1px solid rgba(0,0,0,0.06);
+                border: 1.5px solid #c8cdde;
                 border-radius: 14px;
                 box-shadow: 0 8px 28px rgba(0,0,0,0.22), 0 3px 8px rgba(0,0,0,0.14);
             }
@@ -45,10 +59,21 @@
             /* Table card */
             .table-card {
                 background: white;
-                border: 1px solid rgba(0,0,0,0.06);
+                border: 1.5px solid #c8cdde;
                 border-radius: 14px;
                 overflow: hidden;
                 box-shadow: 0 8px 28px rgba(0,0,0,0.22), 0 3px 8px rgba(0,0,0,0.14);
+            }
+
+            /* Table structure inside table-card */
+            .table-card thead tr {
+                border-bottom: 2px solid #d4d8ea;
+            }
+            .table-card tbody tr {
+                border-bottom: 1px solid #eceef8;
+            }
+            .table-card tbody tr:last-child {
+                border-bottom: none;
             }
 
             /* Sidebar nav link hover */
@@ -76,15 +101,22 @@
             /* Top bar */
             .topbar {
                 background: white;
-                border-bottom: 1px solid rgba(0,0,0,0.06);
+                border-bottom: 2px solid #b8bdd4;
                 box-shadow: 0 10px 50px rgba(0,0,0,0.22), 0 2px 8px rgba(0,0,0,0.12);
             }
 
             /* Sidebar */
             .sidebar {
                 background: white;
-                border-right: 1px solid rgba(0,0,0,0.06);
+                border-right: 2px solid #b8bdd4;
                 box-shadow: 10px 0 55px rgba(0,0,0,0.22);
+            }
+
+            /* Page header */
+            .page-header {
+                background: white;
+                border-bottom: 2px solid #c8cdde;
+                padding: 1rem 2rem;
             }
 
             /* Section labels */
@@ -115,12 +147,35 @@
                 box-shadow: 0 2px 8px rgba(0,0,0,0.15);
             }
 
-            /* Header bar */
-            .page-header {
-                background: white;
-                border-bottom: 1px solid #ebebeb;
-                padding: 1rem 2rem;
-                box-shadow: 0 1px 0 #ebebeb;
+            /* ── Global form inputs ─────────────────────────── */
+            input[type="text"],
+            input[type="email"],
+            input[type="password"],
+            input[type="number"],
+            input[type="date"],
+            input[type="search"],
+            select,
+            textarea {
+                border: 1.5px solid #c4c8dc !important;
+                border-radius: 8px;
+            }
+            input[type="text"]:focus,
+            input[type="email"]:focus,
+            input[type="password"]:focus,
+            input[type="number"]:focus,
+            input[type="date"]:focus,
+            input[type="search"]:focus,
+            select:focus,
+            textarea:focus {
+                border-color: #505b93 !important;
+                outline: none;
+                box-shadow: 0 0 0 3px rgba(80,91,147,0.15) !important;
+            }
+
+            /* ── Inline table dividers (non-.table-card tables) ── */
+            .divide-y > tr,
+            .divide-y > * {
+                border-color: #eceef8 !important;
             }
         </style>
     </head>
