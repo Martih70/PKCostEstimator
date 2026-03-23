@@ -26,7 +26,7 @@
     </head>
     <body class="font-sans antialiased" style="background: linear-gradient(135deg, #f7fcff 0%, #f0f7ff 100%); color: #1b1b18; min-height: 100vh;">
         <div class="min-h-screen flex items-center justify-center px-4 py-12" style="background: linear-gradient(160deg, #f4f6ff 0%, #eef3ff 40%, #f2f6ff 100%);">
-            <div class="w-full max-w-sm">
+            <div class="w-full" style="max-width: 26rem;">
                 <!-- Brand -->
                 <div class="flex flex-col items-center mb-8">
                     <x-application-logo class="h-16 w-16 mb-4" style="filter: drop-shadow(0 6px 16px rgba(80,91,147,0.5));"/>
