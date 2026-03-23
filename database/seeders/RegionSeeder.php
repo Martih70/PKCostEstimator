@@ -13,11 +13,11 @@ class RegionSeeder extends Seeder
      */
     public function run(): void
     {
-        Region::create(['name' => 'Islamabad/Rawalpindi', 'slug' => 'islamabad-rawalpindi']);
-        Region::create(['name' => 'Sialkot', 'slug' => 'sialkot']);
-        Region::create(['name' => 'Lahore', 'slug' => 'lahore']);
-        Region::create(['name' => 'Karachi', 'slug' => 'karachi']);
-        Region::create(['name' => 'Motra', 'slug' => 'motra']);
-        Region::create(['name' => 'Other', 'slug' => 'other']);
+        Region::firstOrCreate(['slug' => 'islamabad-rawalpindi'], ['name' => 'Islamabad/Rawalpindi']);
+        Region::firstOrCreate(['slug' => 'sialkot'],              ['name' => 'Sialkot']);
+        Region::firstOrCreate(['slug' => 'lahore'],               ['name' => 'Lahore']);
+        Region::firstOrCreate(['slug' => 'karachi'],              ['name' => 'Karachi']);
+        Region::firstOrCreate(['slug' => 'motra'],                ['name' => 'Motra']);
+        Region::firstOrCreate(['slug' => 'other'],                ['name' => 'Other']);
     }
 }

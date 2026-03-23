@@ -13,7 +13,7 @@ class ExchangeRateSeeder extends Seeder
      */
     public function run(): void
     {
-        ExchangeRate::create(['currency_code' => 'USD', 'rate_to_pkr' => 277.00, 'effective_date' => '2025-01-01']);
-        ExchangeRate::create(['currency_code' => 'GBP', 'rate_to_pkr' => 350.00, 'effective_date' => '2025-01-01']);
+        ExchangeRate::firstOrCreate(['currency_code' => 'USD'], ['rate_to_pkr' => 277.00, 'effective_date' => '2025-01-01']);
+        ExchangeRate::firstOrCreate(['currency_code' => 'GBP'], ['rate_to_pkr' => 350.00, 'effective_date' => '2025-01-01']);
     }
 }
