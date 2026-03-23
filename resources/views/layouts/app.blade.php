@@ -407,6 +407,17 @@
                             @endif
                         </div>
 
+                        <!-- Sidebar footer -->
+                        <div class="px-4 py-4 border-t" style="border-color: #e4e6f0;">
+                            <div class="flex items-center gap-3 text-xs" style="color: #9ca3af;">
+                                <a href="{{ route('help') }}"    class="hover:text-gray-600 transition">Help</a>
+                                <span>·</span>
+                                <a href="{{ route('terms') }}"   class="hover:text-gray-600 transition">Terms</a>
+                                <span>·</span>
+                                <a href="{{ route('privacy') }}" class="hover:text-gray-600 transition">Privacy</a>
+                            </div>
+                        </div>
+
                     </div>
                 </nav>
 

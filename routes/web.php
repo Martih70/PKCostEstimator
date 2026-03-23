@@ -16,6 +16,11 @@ Route::get('/', function () {
     return redirect()->route('dashboard');
 });
 
+// Public pages — no authentication required
+Route::get('/help',    fn() => view('pages.help'))->name('help');
+Route::get('/terms',   fn() => view('pages.terms'))->name('terms');
+Route::get('/privacy', fn() => view('pages.privacy'))->name('privacy');
+
 // Authenticated routes
 Route::middleware(['auth', 'verified'])->group(function () {
     // Dashboard - accessible to all authenticated users
