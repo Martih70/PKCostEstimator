@@ -1,4 +1,10 @@
 <x-guest-layout :wide="true">
+    <div class="mb-5">
+        <a href="javascript:history.back()" class="inline-flex items-center gap-1.5 text-xs text-gray-400 hover:text-gray-600 transition">
+            <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+            Back
+        </a>
+    </div>
     <h2 class="text-base font-bold text-gray-900 mb-1">Terms of Use</h2>
     <p class="text-xs text-gray-400 mb-5">Last updated: March 2026</p>
 
