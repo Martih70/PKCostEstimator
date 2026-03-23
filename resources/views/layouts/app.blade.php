@@ -180,28 +180,36 @@
         </style>
     </head>
     <body class="font-sans antialiased">
-        <div class="flex h-screen flex-col">
+        <div class="flex h-screen flex-col" x-data="{ sidebarOpen: false }">
             <!-- Top Bar -->
-            <header class="topbar px-6 py-3.5">
+            <header class="topbar px-4 py-3.5 md:px-6">
                 <div class="flex items-center justify-between">
-                    <!-- Logo/Brand -->
                     <div class="flex items-center gap-3">
+                        <!-- Hamburger (mobile only) -->
+                        <button @click="sidebarOpen = true"
+                                class="md:hidden inline-flex items-center justify-center rounded-xl text-gray-500 hover:bg-gray-100 h-9 w-9 transition">
+                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                            </svg>
+                        </button>
+
+                        <!-- Logo/Brand -->
                         <x-application-logo class="h-9 w-9" style="filter: drop-shadow(0 2px 6px rgba(80,91,147,0.45));"/>
                         <div>
                             <h1 class="text-base font-bold leading-none">
                                 <span style="color: #505b93;">PK</span><span class="text-gray-800"> Cost Estimator</span>
                             </h1>
-                            <p class="text-xs text-gray-400 mt-0.5 tracking-wide">Construction Forecasting</p>
+                            <p class="hidden sm:block text-xs text-gray-400 mt-0.5 tracking-wide">Construction Forecasting</p>
                         </div>
                     </div>
 
                     <!-- User Menu -->
-                    <div class="flex items-center gap-3">
-                        <div class="flex items-center gap-2.5 rounded-xl px-3 py-2" style="background: #f5f5f8; border: 1px solid #ebebeb;">
+                    <div class="flex items-center gap-2 md:gap-3">
+                        <div class="flex items-center gap-2.5 rounded-xl px-3 py-2" style="background: #f5f5f8; border: 1px solid #c8cdde;">
                             <div class="h-7 w-7 rounded-full flex items-center justify-center text-xs font-bold text-white" style="background: linear-gradient(135deg, #505b93, #3d4269);">
                                 {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
                             </div>
-                            <div class="text-left">
+                            <div class="text-left hidden sm:block">
                                 <p class="text-xs font-semibold text-gray-900 leading-none">{{ auth()->user()->name }}</p>
                                 <p class="text-xs text-gray-400 capitalize mt-0.5">{{ str_replace('_', ' ', auth()->user()->role) }}</p>
                             </div>
@@ -220,9 +228,35 @@
 
             <!-- Main Content Area -->
             <div class="flex flex-1 overflow-hidden">
-                <!-- Sidebar -->
-                <nav class="sidebar w-64 overflow-y-auto">
+
+                <!-- Mobile overlay backdrop -->
+                <div x-show="sidebarOpen"
+                     x-transition:enter="transition ease-out duration-200"
+                     x-transition:enter-start="opacity-0"
+                     x-transition:enter-end="opacity-100"
+                     x-transition:leave="transition ease-in duration-150"
+                     x-transition:leave-start="opacity-100"
+                     x-transition:leave-end="opacity-0"
+                     @click="sidebarOpen = false"
+                     class="fixed inset-0 z-20 bg-black/40 md:hidden"
+                     style="display:none;"></div>
+
+                <!-- Sidebar — fixed slide-in on mobile, static on desktop -->
+                <nav class="sidebar fixed inset-y-0 left-0 z-30 w-72 overflow-y-auto
+                            transform transition-transform duration-200 ease-in-out
+                            md:relative md:w-64 md:translate-x-0 md:z-auto"
+                     :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'">
                     <div class="flex flex-col h-full">
+                        <!-- Mobile close button -->
+                        <div class="flex items-center justify-between px-4 pt-4 md:hidden">
+                            <span class="text-xs font-bold uppercase tracking-widest text-gray-400">Menu</span>
+                            <button @click="sidebarOpen = false"
+                                    class="inline-flex items-center justify-center rounded-lg h-8 w-8 text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition">
+                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
                         <!-- Navigation Links -->
                         <div class="flex-1 px-3 py-5 space-y-0.5">
 
