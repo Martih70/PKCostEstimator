@@ -38,12 +38,19 @@
                 <!-- Region Card -->
                 <div class="rounded-lg p-5 transition-all duration-200" style="background: #fffaf0; border: 1px solid #e5e5e5; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15), 0 10px 10px -5px rgba(0, 0, 0, 0.1);">
                     <label for="region" class="block text-xs font-semibold uppercase tracking-wider mb-3" style="color: #706f6c;">Region</label>
-                    <select id="region" x-model="regionId" class="w-full rounded-lg px-3 py-2.5 text-sm focus:outline-none transition-all" style="background: white; border: 1px solid #e5e5e5; color: #1b1b18; focus:border: 1px solid #505b93;">
-                        <option value="">Select region...</option>
-                        @foreach($regions as $region)
-                            <option value="{{ $region->id }}" style="background: white; color: #1b1b18;">{{ $region->name }}</option>
-                        @endforeach
-                    </select>
+                    <div class="relative">
+                        <select id="region" x-model="regionId" class="w-full rounded-lg px-3 py-2.5 text-sm focus:outline-none transition-all appearance-none" style="background: white; border: 1px solid #e5e5e5; color: #1b1b18; padding-right: 2.5rem; -webkit-appearance: none;">
+                            <option value="">Select region...</option>
+                            @foreach($regions as $region)
+                                <option value="{{ $region->id }}" style="background: white; color: #1b1b18;">{{ $region->name }}</option>
+                            @endforeach
+                        </select>
+                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: #706f6c;">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Floor Area Card -->
@@ -55,14 +62,21 @@
                 <!-- Currency Card -->
                 <div class="rounded-lg p-5 transition-all duration-200" style="background: #fffaf0; border: 1px solid #e5e5e5; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15), 0 10px 10px -5px rgba(0, 0, 0, 0.1);">
                     <label for="currency" class="block text-xs font-semibold uppercase tracking-wider mb-3" style="color: #706f6c;">Currency</label>
-                    <select id="currency" x-model="currency" class="w-full rounded-lg px-3 py-2.5 text-sm focus:outline-none transition-all" style="background: white; border: 1px solid #e5e5e5; color: #1b1b18;">
-                        <option value="">PKR</option>
-                        @foreach($exchangeRates as $code => $rate)
-                            @if($code !== 'PKR')
-                                <option value="{{ $code }}" style="background: white; color: #1b1b18;">{{ $code }}</option>
-                            @endif
-                        @endforeach
-                    </select>
+                    <div class="relative">
+                        <select id="currency" x-model="currency" class="w-full rounded-lg px-3 py-2.5 text-sm focus:outline-none transition-all appearance-none" style="background: white; border: 1px solid #e5e5e5; color: #1b1b18; padding-right: 2.5rem; -webkit-appearance: none;">
+                            <option value="">PKR</option>
+                            @foreach($exchangeRates as $code => $rate)
+                                @if($code !== 'PKR')
+                                    <option value="{{ $code }}" style="background: white; color: #1b1b18;">{{ $code }}</option>
+                                @endif
+                            @endforeach
+                        </select>
+                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: #706f6c;">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>

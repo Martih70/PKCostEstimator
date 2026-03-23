@@ -196,6 +196,18 @@
                 border: 1.5px solid #c4c8dc !important;
                 border-radius: 8px;
             }
+
+            /* Ensure selects always show a chevron — native arrow is hidden by
+               appearance:none in some browsers when custom border is applied */
+            select {
+                background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23706f6c' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+                background-repeat: no-repeat;
+                background-position: right 0.65rem center;
+                background-size: 1rem 1rem;
+                padding-right: 2.5rem !important;
+                -webkit-appearance: none;
+                appearance: none;
+            }
             input[type="text"]:focus,
             input[type="email"]:focus,
             input[type="password"]:focus,
