@@ -8,6 +8,7 @@ use App\Http\Controllers\AnalyticsController;
 use App\Http\Controllers\Admin\TransactionController;
 use App\Http\Controllers\Admin\ProjectController;
 use App\Http\Controllers\Admin\RatesController;
+use App\Http\Controllers\Admin\UserController;
 use Illuminate\Support\Facades\Route;
 
 // Redirect root to dashboard
@@ -73,6 +74,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // Rates
         Route::get('/rates', [RatesController::class, 'index'])->name('admin.rates.index');
         Route::post('/rates/recalculate', [RatesController::class, 'recalculate'])->name('admin.rates.recalculate');
+
+        // Users
+        Route::get('/users', [UserController::class, 'index'])->name('admin.users.index');
+        Route::get('/users/create', [UserController::class, 'create'])->name('admin.users.create');
+        Route::post('/users', [UserController::class, 'store'])->name('admin.users.store');
+        Route::get('/users/{user}/edit', [UserController::class, 'edit'])->name('admin.users.edit');
+        Route::put('/users/{user}', [UserController::class, 'update'])->name('admin.users.update');
+        Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('admin.users.destroy');
     });
 
     // Profile
