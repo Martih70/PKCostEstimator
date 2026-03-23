@@ -21,7 +21,7 @@ class TransactionController extends Controller
                 ->orWhereHas('pdCode', fn($q) => $q->where('code', 'like', "%$search%"));
         }
 
-        $transactions = $query->orderByDesc('date')->paginate(50);
+        $transactions = $query->orderByDesc('transaction_date')->paginate(50);
 
         return view('admin.transactions.index', compact('transactions'));
     }
