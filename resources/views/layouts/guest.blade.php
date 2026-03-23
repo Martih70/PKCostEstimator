@@ -27,7 +27,7 @@
                 </div>
 
                 <!-- Card -->
-                <div class="bg-white rounded-2xl px-8 py-8" style="border: 1px solid rgba(0,0,0,0.06); box-shadow: 0 12px 48px rgba(0,0,0,0.18), 0 4px 12px rgba(0,0,0,0.10);">
+                <div class="bg-white rounded-2xl px-8 py-8" style="border: 1px solid rgba(0,0,0,0.06); box-shadow: 0 17px 68px rgba(0,0,0,0.25), 0 6px 17px rgba(0,0,0,0.14);">
                     {{ $slot }}
                 </div>
             </div>

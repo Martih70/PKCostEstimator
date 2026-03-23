@@ -26,12 +26,12 @@
                 background: white;
                 border: 1px solid rgba(0,0,0,0.06);
                 border-radius: 14px;
-                box-shadow: 0 4px 14px rgba(0,0,0,0.12), 0 1px 4px rgba(0,0,0,0.08);
+                box-shadow: 0 6px 20px rgba(0,0,0,0.17), 0 2px 6px rgba(0,0,0,0.11);
                 transition: transform 0.2s ease, box-shadow 0.2s ease;
             }
             .card:hover {
                 transform: translateY(-5px);
-                box-shadow: 0 28px 64px rgba(0,0,0,0.18), 0 8px 20px rgba(0,0,0,0.10), 0 1px 4px rgba(0,0,0,0.06);
+                box-shadow: 0 40px 90px rgba(0,0,0,0.25), 0 12px 28px rgba(0,0,0,0.14), 0 2px 6px rgba(0,0,0,0.08);
             }
 
             /* Static card */
@@ -39,7 +39,7 @@
                 background: white;
                 border: 1px solid rgba(0,0,0,0.06);
                 border-radius: 14px;
-                box-shadow: 0 4px 14px rgba(0,0,0,0.12), 0 1px 4px rgba(0,0,0,0.08);
+                box-shadow: 0 6px 20px rgba(0,0,0,0.17), 0 2px 6px rgba(0,0,0,0.11);
             }
 
             /* Table card */
@@ -48,7 +48,7 @@
                 border: 1px solid rgba(0,0,0,0.06);
                 border-radius: 14px;
                 overflow: hidden;
-                box-shadow: 0 4px 14px rgba(0,0,0,0.12), 0 1px 4px rgba(0,0,0,0.08);
+                box-shadow: 0 6px 20px rgba(0,0,0,0.17), 0 2px 6px rgba(0,0,0,0.11);
             }
 
             /* Sidebar nav link hover */
@@ -66,25 +66,25 @@
             }
             .btn-primary:hover {
                 transform: translateY(-2px);
-                box-shadow: 0 10px 28px rgba(80, 91, 147, 0.55);
+                box-shadow: 0 14px 40px rgba(80, 91, 147, 0.75);
             }
             .btn-primary:active {
                 transform: translateY(0);
-                box-shadow: 0 2px 6px rgba(80, 91, 147, 0.3);
+                box-shadow: 0 3px 8px rgba(80, 91, 147, 0.42);
             }
 
             /* Top bar */
             .topbar {
                 background: white;
                 border-bottom: 1px solid rgba(0,0,0,0.06);
-                box-shadow: 0 6px 28px rgba(0,0,0,0.12), 0 1px 4px rgba(0,0,0,0.07);
+                box-shadow: 0 8px 40px rgba(0,0,0,0.17), 0 2px 6px rgba(0,0,0,0.10);
             }
 
             /* Sidebar */
             .sidebar {
                 background: white;
                 border-right: 1px solid rgba(0,0,0,0.06);
-                box-shadow: 6px 0 32px rgba(0,0,0,0.12);
+                box-shadow: 8px 0 45px rgba(0,0,0,0.17);
             }
 
             /* Section labels */
