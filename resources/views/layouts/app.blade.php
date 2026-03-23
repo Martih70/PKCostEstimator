@@ -112,6 +112,33 @@
                 box-shadow: 10px 0 55px rgba(0,0,0,0.22);
             }
 
+            /* ── Sidebar responsive slide behaviour ──────────────
+               On mobile: fixed, starts off-screen, slides in when .is-open
+               On desktop (md+): part of normal flex flow, always visible
+            ──────────────────────────────────────────────────── */
+            .sidebar-nav {
+                position: fixed;
+                top: 0; bottom: 0; left: 0;
+                z-index: 30;
+                width: 18rem;
+                overflow-y: auto;
+                transform: translateX(-100%);
+                transition: transform 0.2s ease-in-out;
+            }
+            .sidebar-nav.is-open {
+                transform: translateX(0);
+            }
+            @media (min-width: 768px) {
+                .sidebar-nav {
+                    position: relative;
+                    top: auto; bottom: auto; left: auto;
+                    z-index: auto;
+                    width: 16rem;
+                    flex-shrink: 0;
+                    transform: translateX(0);
+                }
+            }
+
             /* Page header */
             .page-header {
                 background: white;
@@ -242,10 +269,7 @@
                      style="display:none;"></div>
 
                 <!-- Sidebar — fixed slide-in on mobile, static on desktop -->
-                <nav class="sidebar fixed inset-y-0 left-0 z-30 w-72 overflow-y-auto
-                            transform transition-transform duration-200 ease-in-out
-                            md:relative md:w-64 md:translate-x-0 md:z-auto"
-                     :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'">
+                <nav class="sidebar sidebar-nav" :class="{ 'is-open': sidebarOpen }">
                     <div class="flex flex-col h-full">
                         <!-- Mobile close button -->
                         <div class="flex items-center justify-between px-4 pt-4 md:hidden">
