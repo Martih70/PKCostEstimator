@@ -131,12 +131,12 @@
                 <div class="flex items-center justify-between">
                     <!-- Logo/Brand -->
                     <div class="flex items-center gap-3">
-                        <div class="h-9 w-9 rounded-xl flex items-center justify-center text-white font-bold text-sm" style="background: linear-gradient(135deg, #505b93, #3d4269); box-shadow: 0 2px 8px rgba(80,91,147,0.4);">
-                            PK
-                        </div>
+                        <x-application-logo class="h-9 w-9" style="filter: drop-shadow(0 2px 6px rgba(80,91,147,0.45));"/>
                         <div>
-                            <h1 class="text-base font-bold text-gray-900 leading-none">PK Cost Estimator</h1>
-                            <p class="text-xs text-gray-400 mt-0.5">Construction Forecasting</p>
+                            <h1 class="text-base font-bold leading-none">
+                                <span style="color: #505b93;">PK</span><span class="text-gray-800"> Cost Estimator</span>
+                            </h1>
+                            <p class="text-xs text-gray-400 mt-0.5 tracking-wide">Construction Forecasting</p>
                         </div>
                     </div>
 

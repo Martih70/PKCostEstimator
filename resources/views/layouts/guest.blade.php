@@ -19,11 +19,11 @@
             <div class="w-full max-w-sm">
                 <!-- Brand -->
                 <div class="flex flex-col items-center mb-8">
-                    <div class="h-14 w-14 rounded-xl flex items-center justify-center text-white font-bold text-xl mb-4" style="background: linear-gradient(135deg, #505b93, #3d4269); box-shadow: 0 8px 24px rgba(80,91,147,0.45);">
-                        PK
-                    </div>
-                    <h1 class="text-2xl font-semibold text-gray-900 tracking-tight">PK Cost Estimator</h1>
-                    <p class="text-sm text-gray-500 mt-1">Pakistan Construction Cost Forecasting</p>
+                    <x-application-logo class="h-16 w-16 mb-4" style="filter: drop-shadow(0 6px 16px rgba(80,91,147,0.5));"/>
+                    <h1 class="text-2xl font-bold tracking-tight">
+                        <span style="color: #505b93;">PK</span><span class="text-gray-900"> Cost Estimator</span>
+                    </h1>
+                    <p class="text-sm text-gray-400 mt-1 tracking-wide">Pakistan Construction Cost Forecasting</p>
                 </div>
 
                 <!-- Card -->
