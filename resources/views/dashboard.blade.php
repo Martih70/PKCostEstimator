@@ -2,7 +2,7 @@
     <x-slot name="header">
         <div class="flex items-center justify-between">
             <div>
-                <h2 class="text-lg font-bold text-gray-900">Dashboard</h2>
+                <h2 class="text-3xl font-bold text-gray-900">Dashboard</h2>
                 <p class="text-xs text-gray-400 mt-0.5">{{ now()->format('l, d F Y') }}</p>
             </div>
         </div>
