@@ -458,8 +458,10 @@
             },
 
             formatPKR(n) {
-                if (n == null || isNaN(n)) return '—';
-                return Math.round(n).toLocaleString('en-PK');
+                if (n == null || n === '' || n === undefined) return '—';
+                const num = Number(n);
+                if (isNaN(num)) return '—';
+                return Math.round(num).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
             },
         };
     }
