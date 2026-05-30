@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\RatesController;
 use App\Http\Controllers\Admin\EscalationController;
 use App\Http\Controllers\Admin\RegionController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\HistoricalEnrichmentController;
 use Illuminate\Support\Facades\Route;
 
 // Redirect root to dashboard
@@ -88,6 +89,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // Escalation rates
         Route::get('/escalation', [EscalationController::class, 'index'])->name('admin.escalation.index');
         Route::post('/escalation', [EscalationController::class, 'store'])->name('admin.escalation.store');
+
+        // Historical Enrichment
+        Route::get('/historical-enrichment', [HistoricalEnrichmentController::class, 'index'])->name('admin.historical-enrichment.index');
+        Route::get('/historical-enrichment/{id}', [HistoricalEnrichmentController::class, 'show'])->name('admin.historical-enrichment.show');
+        Route::patch('/historical-enrichment/{id}', [HistoricalEnrichmentController::class, 'update'])->name('admin.historical-enrichment.update');
 
         // Users
         Route::get('/users', [UserController::class, 'index'])->name('admin.users.index');

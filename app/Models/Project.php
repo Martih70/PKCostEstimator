@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Project extends Model
 {
-    protected $fillable = ['project_id', 'project_nr', 'unique_id', 'project_type', 'name', 'location', 'city_area', 'region_id', 'gross_floor_area', 'seating_capacity', 'budget_cost', 'cost_estimate', 'project_start_date', 'notes', 'exclude_from_estimator', 'is_overhead_centre'];
+    protected $fillable = ['project_id', 'project_nr', 'unique_id', 'project_type', 'name', 'location', 'city_area', 'region_id', 'gross_floor_area', 'seating_capacity', 'budget_cost', 'cost_estimate', 'project_start_date', 'completion_date', 'area_source', 'area_verified', 'notes', 'exclude_from_estimator', 'is_overhead_centre'];
 
     protected $casts = [
         'gross_floor_area' => 'decimal:2',
@@ -15,6 +15,7 @@ class Project extends Model
         'exclude_from_estimator' => 'boolean',
         'is_overhead_centre' => 'boolean',
         'project_start_date' => 'date',
+        'completion_date' => 'date',
     ];
 
     public function getProjectNumberAttribute()

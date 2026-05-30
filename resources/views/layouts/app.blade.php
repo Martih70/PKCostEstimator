@@ -375,6 +375,13 @@
                                         <span>Projects (Historical)</span>
                                     </a>
 
+                                    <a href="{{ route('admin.historical-enrichment.index') }}" class="nav-link flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium {{ request()->routeIs('admin.historical-enrichment.*') ? 'nav-active text-gray-900' : 'text-gray-600 border-l-[3px] border-transparent' }}">
+                                        <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: #10b981;">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                        </svg>
+                                        <span>Historical Enrichment</span>
+                                    </a>
+
                                     <a href="{{ route('admin.transactions.index') }}" class="nav-link flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium {{ request()->routeIs('admin.transactions.*') ? 'nav-active text-gray-900' : 'text-gray-600 border-l-[3px] border-transparent' }}">
                                         <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: #0ea5e9;">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
