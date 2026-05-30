@@ -74,6 +74,9 @@ class ProjectController extends Controller
 
         $project->update($validated);
 
-        return back()->with('updated_id', $id);
+        $updatedField = collect(['gross_floor_area', 'seating_capacity', 'project_start_date'])
+            ->first(fn($f) => $request->has($f));
+
+        return back()->with('updated_id', $id)->with('updated_field', $updatedField);
     }
 }

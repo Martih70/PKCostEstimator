@@ -42,13 +42,17 @@
                                         —
                                     @endif
                                 </td>
-                                @php $tickColor = session('updated_id') == $project->id ? '#ef4444' : '#505b93'; @endphp
+                                @php
+                                    $savedRow = session('updated_id') == $project->id;
+                                    $savedField = session('updated_field');
+                                    $tick = fn($field) => ($savedRow && $savedField === $field) ? '#ef4444' : '#505b93';
+                                @endphp
                                 <td class="px-6 py-4 text-right text-gray-900">
                                     <form method="POST" action="{{ route('admin.projects.update', $project->id) }}" class="inline-flex gap-2">
                                         @csrf
                                         @method('PUT')
                                         <input type="number" name="gross_floor_area" value="{{ (int)$project->gross_floor_area }}" step="1" class="w-24 rounded px-2 py-1 text-right" style="border: 1px solid #e5e5e5; background: white;" />
-                                        <button type="submit" class="text-xs font-medium" style="color: {{ $tickColor }};">✓</button>
+                                        <button type="submit" class="text-xs font-medium" style="color: {{ $tick('gross_floor_area') }};">✓</button>
                                     </form>
                                 </td>
                                 <td class="px-6 py-4 text-right text-gray-900">
@@ -56,7 +60,7 @@
                                         @csrf
                                         @method('PUT')
                                         <input type="number" name="seating_capacity" value="{{ $project->seating_capacity }}" step="1" min="1" class="w-24 rounded px-2 py-1 text-right" style="border: 1px solid #e5e5e5; background: white;" placeholder="—" />
-                                        <button type="submit" class="text-xs font-medium" style="color: {{ $tickColor }};">✓</button>
+                                        <button type="submit" class="text-xs font-medium" style="color: {{ $tick('seating_capacity') }};">✓</button>
                                     </form>
                                 </td>
                                 <td class="px-6 py-4 text-center">
