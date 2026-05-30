@@ -8,6 +8,8 @@ use App\Http\Controllers\AnalyticsController;
 use App\Http\Controllers\Admin\TransactionController;
 use App\Http\Controllers\Admin\ProjectController;
 use App\Http\Controllers\Admin\RatesController;
+use App\Http\Controllers\Admin\EscalationController;
+use App\Http\Controllers\Admin\RegionController;
 use App\Http\Controllers\Admin\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -79,6 +81,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // Rates
         Route::get('/rates', [RatesController::class, 'index'])->name('admin.rates.index');
         Route::post('/rates/recalculate', [RatesController::class, 'recalculate'])->name('admin.rates.recalculate');
+
+        // Regions
+        Route::put('/regions/{id}', [RegionController::class, 'update'])->name('admin.regions.update');
+
+        // Escalation rates
+        Route::get('/escalation', [EscalationController::class, 'index'])->name('admin.escalation.index');
+        Route::post('/escalation', [EscalationController::class, 'store'])->name('admin.escalation.store');
 
         // Users
         Route::get('/users', [UserController::class, 'index'])->name('admin.users.index');

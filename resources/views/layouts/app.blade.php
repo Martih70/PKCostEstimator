@@ -389,6 +389,13 @@
                                         <span>Rates</span>
                                     </a>
 
+                                    <a href="{{ route('admin.escalation.index') }}" class="nav-link flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium {{ request()->routeIs('admin.escalation.*') ? 'nav-active text-gray-900' : 'text-gray-600 border-l-[3px] border-transparent' }}">
+                                        <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: #8b5cf6;">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                                        </svg>
+                                        <span>Escalation</span>
+                                    </a>
+
                                     <a href="{{ route('admin.users.index') }}" class="nav-link flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium {{ request()->routeIs('admin.users.index') ? 'nav-active text-gray-900' : 'text-gray-600 border-l-[3px] border-transparent' }}">
                                         <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: #f59e0b;">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />

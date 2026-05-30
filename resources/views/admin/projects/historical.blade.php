@@ -24,6 +24,7 @@
                             <th class="px-6 py-3 text-left font-semibold text-gray-900">Region</th>
                             <th class="px-6 py-3 text-right font-semibold text-gray-900">Budget Cost</th>
                             <th class="px-6 py-3 text-right font-semibold text-gray-900">GFA (m²)</th>
+                            <th class="px-6 py-3 text-right font-semibold text-gray-900">Seats</th>
                             <th class="px-6 py-3 text-center font-semibold text-gray-900">Exclude</th>
                         </tr>
                     </thead>
@@ -46,6 +47,16 @@
                                         @csrf
                                         @method('PUT')
                                         <input type="number" name="gross_floor_area" value="{{ (int)$project->gross_floor_area }}" step="1" class="w-24 rounded px-2 py-1 text-right" style="border: 1px solid #e5e5e5; background: white;" />
+                                        <button type="submit" class="text-xs font-medium" style="color: #505b93;">
+                                            ✓
+                                        </button>
+                                    </form>
+                                </td>
+                                <td class="px-6 py-4 text-right text-gray-900">
+                                    <form method="POST" action="{{ route('admin.projects.update', $project->id) }}" class="inline-flex gap-2">
+                                        @csrf
+                                        @method('PUT')
+                                        <input type="number" name="seating_capacity" value="{{ $project->seating_capacity }}" step="1" min="1" class="w-24 rounded px-2 py-1 text-right" style="border: 1px solid #e5e5e5; background: white;" placeholder="—" />
                                         <button type="submit" class="text-xs font-medium" style="color: #505b93;">
                                             ✓
                                         </button>

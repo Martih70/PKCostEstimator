@@ -30,6 +30,22 @@
                             @endif
                         </span>
                     </p>
+                    <p class="text-sm">
+                        <span class="text-gray-600">Seats:</span>
+                        <span class="font-mono text-gray-900">
+                            @if($project->seating_capacity)
+                                {{ number_format($project->seating_capacity) }}
+                            @else
+                                —
+                            @endif
+                        </span>
+                    </p>
+                    @if($project->cost_per_seat)
+                        <p class="text-sm">
+                            <span class="text-gray-600">Cost/Seat:</span>
+                            <span class="font-mono text-gray-900">PKR {{ number_format($project->cost_per_seat, 0) }}</span>
+                        </p>
+                    @endif
                 </div>
                 <div class="flex space-x-2">
                     <a href="{{ route('projects.summary', $project) }}" class="flex-1 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded hover:bg-blue-700 text-center">

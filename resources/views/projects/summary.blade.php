@@ -25,7 +25,13 @@
             <h1 class="text-3xl font-bold text-gray-900">{{ $project->project_number }}</h1>
             <p class="text-gray-600 mt-2">Region: {{ $project->region?->name ?? 'Unknown' }}</p>
             @if($project->gfa)
-                <p class="text-gray-600">GFA: {{ number_format($project->gfa, 2) }} m²</p>
+                <p class="text-gray-600">Gross Floor Area: {{ number_format($project->gfa, 2) }} m²</p>
+            @endif
+            @if($project->seating_capacity)
+                <p class="text-gray-600">Seating Capacity: {{ number_format($project->seating_capacity) }} seats</p>
+            @endif
+            @if($project->cost_per_seat)
+                <p class="text-gray-600">Cost per Seat: PKR {{ number_format($project->cost_per_seat, 0) }}</p>
             @endif
         </div>
 

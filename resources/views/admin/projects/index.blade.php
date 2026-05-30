@@ -21,6 +21,8 @@
                                 <th class="px-6 py-3 text-right font-semibold text-gray-900">Budget Cost</th>
                                 <th class="px-6 py-3 text-right font-semibold text-gray-900">Cost Estimate</th>
                                 <th class="px-6 py-3 text-right font-semibold text-gray-900">GFA (m²)</th>
+                                <th class="px-6 py-3 text-right font-semibold text-gray-900">Seats</th>
+                                <th class="px-6 py-3 text-center font-semibold text-gray-900">Start Date</th>
                                 <th class="px-6 py-3 text-center font-semibold text-gray-900">Exclude</th>
                                 <th class="px-6 py-3 text-center font-semibold text-gray-900">Action</th>
                             </tr>
@@ -54,6 +56,26 @@
                                             <button type="submit" class="text-xs font-medium" style="color: #505b93;">
                                                 ✓
                                             </button>
+                                        </form>
+                                    </td>
+                                    <td class="px-6 py-4 text-right text-gray-900">
+                                        <form method="POST" action="{{ route('admin.projects.update', $project->id) }}" class="inline-flex gap-2">
+                                            @csrf
+                                            @method('PUT')
+                                            <input type="number" name="seating_capacity" value="{{ $project->seating_capacity }}" step="1" min="1" class="w-24 rounded px-2 py-1 text-right" style="border: 1px solid #e5e5e5; background: white;" placeholder="—" />
+                                            <button type="submit" class="text-xs font-medium" style="color: #505b93;">
+                                                ✓
+                                            </button>
+                                        </form>
+                                    </td>
+                                    <td class="px-6 py-4 text-center">
+                                        <form method="POST" action="{{ route('admin.projects.update', $project->id) }}" class="inline-flex gap-2 items-center">
+                                            @csrf
+                                            @method('PUT')
+                                            <input type="date" name="project_start_date"
+                                                value="{{ $project->project_start_date?->format('Y-m-d') }}"
+                                                class="rounded px-2 py-1 text-sm" style="border: 1px solid #e5e5e5; background: white;" />
+                                            <button type="submit" class="text-xs font-medium" style="color: #505b93;">✓</button>
                                         </form>
                                     </td>
                                     <td class="px-6 py-4 text-center">

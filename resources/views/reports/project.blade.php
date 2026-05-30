@@ -26,6 +26,18 @@
         </div>
 
     <div class="space-y-12">
+
+        {{-- Step 2d: Thin-dataset warning banner --}}
+        @if($comparableProjectCount < 3)
+        <div class="rounded-lg p-4 flex gap-3 items-start" style="background: #fef3c7; border: 1px solid #f59e0b;">
+            <span class="text-lg" style="color: #92400e;">⚠</span>
+            <div>
+                <p class="text-sm font-semibold" style="color: #92400e;">Warning: This forecast is based on fewer than 3 comparable projects in this region.</p>
+                <p class="text-sm mt-1" style="color: #92400e;">Treat all figures as indicative only and apply professional judgement before use.</p>
+            </div>
+        </div>
+        @endif
+
         <!-- Project Header -->
         <div class="rounded-lg p-8" style="background: #fffaf0; border: 1px solid #e5e5e5; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15), 0 10px 10px -5px rgba(0, 0, 0, 0.1);">
             <div class="grid grid-cols-2 md:grid-cols-3 gap-6">
@@ -45,7 +57,85 @@
                     <p class="text-xs font-semibold uppercase tracking-wider mb-1" style="color: #706f6c;">Project ID</p>
                     <p class="text-lg font-bold text-gray-900">{{ $project->project_nr ?? '—' }}</p>
                 </div>
+                @if($project->seating_capacity)
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-wider mb-1" style="color: #706f6c;">Seating Capacity</p>
+                    <p class="text-lg font-bold text-gray-900">{{ number_format($project->seating_capacity) }} seats</p>
+                </div>
+                @endif
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-wider mb-1" style="color: #706f6c;">Regional Adjustment</p>
+                    <p class="text-sm font-bold text-gray-900">
+                        {{ $project->region?->name }}
+                        <span class="font-mono">({{ number_format($adjustmentFactor, 2) }})</span>
+                    </p>
+                    <p class="text-xs mt-0.5" style="color: #706f6c;">
+                        @if($adjustmentFactor == 1.0)
+                            Base rate — no adjustment
+                        @elseif($adjustmentFactor > 1.0)
+                            Rates adjusted +{{ number_format(($adjustmentFactor - 1) * 100, 1) }}% above base
+                        @else
+                            Rates adjusted {{ number_format(($adjustmentFactor - 1) * 100, 1) }}% below base
+                        @endif
+                    </p>
+                </div>
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-wider mb-1" style="color: #706f6c;">Escalation</p>
+                    @if($escalationApplied)
+                        <p class="text-sm font-bold text-gray-900">
+                            {{ $escalationMonths }} months at {{ $monthlyRate }}%/month
+                            = +{{ number_format(($escalationFactor - 1) * 100, 1) }}% uplift
+                        </p>
+                        <p class="text-xs mt-0.5" style="color: #706f6c;">
+                            Base data avg: {{ $baseDataDate->format('M Y') }}
+                            → Start: {{ \Carbon\Carbon::parse($project->project_start_date)->format('M Y') }}
+                        </p>
+                    @else
+                        <p class="text-sm font-bold text-gray-900" style="color: #706f6c;">Not applied</p>
+                        <p class="text-xs mt-0.5" style="color: #f59e0b;">
+                            No project start date set — set one to include time-based adjustment.
+                        </p>
+                    @endif
+                </div>
+                @if($project->cost_estimate && $project->gross_floor_area)
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-wider mb-1" style="color: #706f6c;">Cost per m²</p>
+                    <p class="text-lg font-bold text-gray-900" x-text="`${getCurrencySymbol()} ${formatNumber(convert({{ round($project->cost_estimate / $project->gross_floor_area, 0) }}))}`"></p>
+                </div>
+                @endif
+                @if($project->cost_per_seat)
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-wider mb-1" style="color: #706f6c;">Cost per Seat</p>
+                    <p class="text-lg font-bold text-gray-900" x-text="`${getCurrencySymbol()} ${formatNumber(convert({{ $project->cost_per_seat }}))}`"></p>
+                </div>
+                @endif
             </div>
+        </div>
+
+        {{-- Step 2c: Confidence summary box --}}
+        <div class="rounded-lg p-5" style="background: #f9fafb; border: 1px solid #e5e5e5;">
+            <p class="text-sm font-semibold text-gray-900 mb-2">Data Confidence Summary</p>
+            <p class="text-sm text-gray-700">Based on <strong>{{ $comparableProjectCount }}</strong> comparable historical project(s) in this region.</p>
+            <div class="flex flex-wrap gap-4 mt-3 text-sm">
+                @if($confidenceSummary['high'] > 0)
+                    <span class="px-2 py-1 rounded-full font-medium" style="background: #d1fae5; color: #065f46;">{{ $confidenceSummary['high'] }} High</span>
+                @endif
+                @if($confidenceSummary['medium'] > 0)
+                    <span class="px-2 py-1 rounded-full font-medium" style="background: #dbeafe; color: #1e40af;">{{ $confidenceSummary['medium'] }} Medium</span>
+                @endif
+                @if($confidenceSummary['low'] > 0)
+                    <span class="px-2 py-1 rounded-full font-medium" style="background: #fef3c7; color: #92400e;">{{ $confidenceSummary['low'] }} Low</span>
+                @endif
+                @if($confidenceSummary['very_low'] > 0)
+                    <span class="px-2 py-1 rounded-full font-medium" style="background: #fee2e2; color: #991b1b;">{{ $confidenceSummary['very_low'] }} Very Low</span>
+                @endif
+                @if($confidenceSummary['no_data'] > 0)
+                    <span class="px-2 py-1 rounded-full font-medium" style="background: #f3f4f6; color: #374151;">{{ $confidenceSummary['no_data'] }} No data</span>
+                @endif
+            </div>
+            @if(($confidenceSummary['low'] + $confidenceSummary['very_low'] + $confidenceSummary['no_data']) > 0)
+            <p class="text-xs mt-3" style="color: #706f6c;">Rates with Low or Very Low confidence should be reviewed and adjusted by the QS before presenting to project sponsors.</p>
+            @endif
         </div>
 
         <!-- Cost Breakdown Table -->
@@ -78,6 +168,10 @@
                         <tr style="border-bottom: 1px solid #e5e5e5; cursor: pointer; background: #f9f9f9;" @click="toggleRow({{ $elementId }})">
                             <td class="px-6 py-3 font-semibold text-gray-900">
                                 <span x-text="`${expandedRows[{{ $elementId }}] ? '▼' : '▶'}  {{ $item['code'] }}`"></span>
+                                <span class="block text-xs font-medium px-2 py-0.5 rounded-full mt-1 w-fit"
+                                    style="background: {{ $item['confidence']['bg'] }}; color: {{ $item['confidence']['color'] }};">
+                                    {{ $item['confidence']['label'] }} ({{ $item['confidence']['count'] }})
+                                </span>
                             </td>
                             <td class="px-6 py-3 text-gray-700 font-medium">{{ $item['name'] }}</td>
                             <td class="px-3 py-3 text-center text-gray-900" x-text="formatNumber(convert({{ $item['low']['rate'] }}))"></td>
@@ -139,8 +233,150 @@
                         <span>TOTAL</span>
                         <span x-text="`${getCurrencySymbol()} ${formatNumber(convert({{ $bandTotals[$band]['subtotal'] }}))}`"></span>
                     </div>
+                    @if($project->gross_floor_area)
+                    <div class="flex justify-between text-xs mt-2" style="color: #706f6c;">
+                        <span>Cost/m²</span>
+                        <span x-text="`${getCurrencySymbol()} ${formatNumber(convert({{ round($bandTotals[$band]['subtotal'] / $project->gross_floor_area, 0) }}))}`"></span>
+                    </div>
+                    @endif
+                    @if($project->seating_capacity)
+                    <div class="flex justify-between text-xs mt-1" style="color: #706f6c;">
+                        <span>Cost/Seat</span>
+                        <span x-text="`${getCurrencySymbol()} ${formatNumber(convert({{ round($bandTotals[$band]['subtotal'] / $project->seating_capacity, 0) }}))}`"></span>
+                    </div>
+                    @endif
                 </div>
             @endforeach
+        </div>
+
+        {{-- Priority 5: Dual-Metric Forecast Comparison --}}
+        <div class="rounded-lg overflow-hidden" style="border: 1px solid #e5e5e5; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.15), 0 10px 10px -5px rgba(0,0,0,0.1);">
+
+            {{-- Header --}}
+            <div class="px-6 py-4 flex items-center justify-between" style="background: #1e1b4b;">
+                <p class="text-sm font-bold uppercase tracking-wider text-white">Dual-Metric Forecast Comparison</p>
+                {{-- Confidence score --}}
+                <div class="flex items-center gap-2">
+                    <span class="text-xs text-indigo-300">Confidence</span>
+                    <span class="flex gap-0.5">
+                        @for($i = 1; $i <= 5; $i++)
+                            <span style="font-size:16px; color: {{ $i <= $confidenceScore ? '#fbbf24' : '#4338ca' }};">★</span>
+                        @endfor
+                    </span>
+                    <span class="text-xs text-indigo-300">({{ $confidenceScore }}/5)</span>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 divide-y lg:divide-y-0 lg:divide-x divide-gray-200">
+
+                {{-- Area-based column --}}
+                <div class="p-6">
+                    <p class="text-xs font-semibold uppercase tracking-wider mb-4" style="color: #505b93;">
+                        Area-Based &nbsp;·&nbsp; {{ $comparableProjectCount }} comparable project(s)
+                    </p>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-gray-500">Low</span>
+                            <span class="font-mono font-medium text-gray-900" x-text="`${getCurrencySymbol()} ${formatNumber(convert({{ round($areaLow) }}))}`"></span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="font-semibold text-gray-700">Mid</span>
+                            <span class="font-mono font-bold text-gray-900" x-text="`${getCurrencySymbol()} ${formatNumber(convert({{ round($areaMid) }}))}`"></span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-500">High</span>
+                            <span class="font-mono font-medium text-gray-900" x-text="`${getCurrencySymbol()} ${formatNumber(convert({{ round($areaHigh) }}))}`"></span>
+                        </div>
+                    </div>
+                    @if($avgAreaRatePerM2 > 0)
+                    <p class="text-xs mt-4" style="color: #706f6c;">
+                        Avg rate: PKR {{ number_format($avgAreaRatePerM2, 0) }} / m²
+                    </p>
+                    @endif
+                </div>
+
+                {{-- Seating-based column --}}
+                <div class="p-6">
+                    <p class="text-xs font-semibold uppercase tracking-wider mb-4" style="color: #0f766e;">
+                        Seating-Based &nbsp;·&nbsp;
+                        @if($seatMid !== null)
+                            {{ $seatComparables }} comparable project(s)
+                        @elseif(!$project->seating_capacity)
+                            No seating capacity set on this project
+                        @else
+                            No historical data with seating in this region
+                        @endif
+                    </p>
+                    @if($seatMid !== null)
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-gray-500">Low</span>
+                            <span class="font-mono font-medium text-gray-900" x-text="`${getCurrencySymbol()} ${formatNumber(convert({{ round($seatLow) }}))}`"></span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="font-semibold text-gray-700">Mid</span>
+                            <span class="font-mono font-bold text-gray-900" x-text="`${getCurrencySymbol()} ${formatNumber(convert({{ round($seatMid) }}))}`"></span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-500">High</span>
+                            <span class="font-mono font-medium text-gray-900" x-text="`${getCurrencySymbol()} ${formatNumber(convert({{ round($seatHigh) }}))}`"></span>
+                        </div>
+                    </div>
+                    @if($avgCostPerSeat)
+                    <p class="text-xs mt-4" style="color: #706f6c;">
+                        Avg rate: PKR {{ number_format($avgCostPerSeat, 0) }} / seat
+                        &nbsp;·&nbsp; {{ $project->seating_capacity }} seats
+                    </p>
+                    @endif
+                    @else
+                    <p class="text-sm text-gray-400 italic mt-2">
+                        @if(!$project->seating_capacity)
+                            Set a seating capacity on this project to enable seating-based forecasting.
+                        @else
+                            Record seating capacity on historical projects in this region to enable this metric.
+                        @endif
+                    </p>
+                    @endif
+                </div>
+            </div>
+
+            {{-- Divergence / Agreement bar --}}
+            @if($divergencePct !== null)
+            <div class="px-6 py-4 border-t border-gray-200 {{ $divergenceWarning ? '' : '' }}"
+                style="background: {{ $divergenceWarning ? '#fef3c7' : '#f0fdf4' }};">
+                @if($divergenceWarning)
+                    <p class="text-sm font-semibold" style="color: #92400e;">
+                        ⚠ Divergence: {{ number_format($divergencePct, 1) }}% — the two methods disagree significantly.
+                    </p>
+                    <p class="text-xs mt-1" style="color: #92400e;">
+                        Review the comparable projects for each metric before presenting figures to sponsors.
+                    </p>
+                @else
+                    <p class="text-sm font-semibold" style="color: #065f46;">
+                        ✓ Agreement: within {{ number_format($divergencePct, 1) }}% — forecasts are consistent.
+                    </p>
+                @endif
+            </div>
+            @endif
+
+            {{-- Recommended budget --}}
+            <div class="px-6 py-5 border-t border-gray-200" style="background: #fafafa;">
+                <div class="flex items-center justify-between flex-wrap gap-4">
+                    <div>
+                        <p class="text-xs font-semibold uppercase tracking-wider mb-1" style="color: #706f6c;">Recommended Budget Figure</p>
+                        <p class="text-xs" style="color: #706f6c;">
+                            @if($divergenceWarning)
+                                Metrics diverge — apply QS judgement before use.
+                            @else
+                                Area-based HIGH band
+                                @if($seatMid !== null) (both metrics agree) @endif
+                            @endif
+                        </p>
+                    </div>
+                    <p class="text-2xl font-bold text-gray-900" x-text="`${getCurrencySymbol()} ${formatNumber(convert({{ round($areaHigh) }}))}`"></p>
+                </div>
+            </div>
+
         </div>
 
         <!-- Action Buttons -->

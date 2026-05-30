@@ -38,6 +38,18 @@
                     <p class="text-xs font-semibold uppercase tracking-wider mb-1" style="color: #706f6c;">Gross Floor Area</p>
                     <p class="text-lg font-bold text-gray-900">{{ number_format($project->gross_floor_area ?? 0, 0) }} m²</p>
                 </div>
+                @if($project->seating_capacity)
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-wider mb-1" style="color: #706f6c;">Seating Capacity</p>
+                    <p class="text-lg font-bold text-gray-900">{{ number_format($project->seating_capacity) }} seats</p>
+                </div>
+                @endif
+                @if($project->seating_capacity && $totalAmount)
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-wider mb-1" style="color: #706f6c;">Cost per Seat</p>
+                    <p class="text-lg font-bold text-gray-900" x-text="`${getCurrencySymbol()} ${formatNumber(convert({{ round($totalAmount / $project->seating_capacity, 2) }}))}`"></p>
+                </div>
+                @endif
             </div>
         </div>
 
@@ -98,6 +110,12 @@
                 <p class="text-sm font-bold uppercase" style="color: #706f6c;">TOTAL PROJECT AMOUNT</p>
                 <p class="text-2xl font-bold text-gray-900" x-text="`${getCurrencySymbol()} ${formatNumber(convert({{ $totalAmount }}))}`"></p>
             </div>
+            @if($project->gross_floor_area)
+            <div class="flex justify-between items-center mt-2">
+                <p class="text-xs" style="color: #706f6c;">Cost/m²</p>
+                <p class="text-sm font-medium text-gray-700" x-text="`${getCurrencySymbol()} ${formatNumber(convert({{ round($totalAmount / $project->gross_floor_area, 0) }}))}`"></p>
+            </div>
+            @endif
         </div>
 
         <!-- Action Buttons -->

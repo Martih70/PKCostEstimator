@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Region;
 use App\Models\RegionalRate;
 use Illuminate\Support\Facades\Artisan;
 
@@ -15,7 +16,9 @@ class RatesController extends Controller
             ->orderBy('estimating_element_id')
             ->get();
 
-        return view('admin.rates.index', compact('regionalRates'));
+        $regions = Region::orderBy('name')->get();
+
+        return view('admin.rates.index', compact('regionalRates', 'regions'));
     }
 
     public function recalculate()

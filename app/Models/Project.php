@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Project extends Model
 {
-    protected $fillable = ['project_id', 'project_nr', 'unique_id', 'project_type', 'name', 'location', 'city_area', 'region_id', 'gross_floor_area', 'budget_cost', 'cost_estimate', 'notes', 'exclude_from_estimator', 'is_overhead_centre'];
+    protected $fillable = ['project_id', 'project_nr', 'unique_id', 'project_type', 'name', 'location', 'city_area', 'region_id', 'gross_floor_area', 'seating_capacity', 'budget_cost', 'cost_estimate', 'project_start_date', 'notes', 'exclude_from_estimator', 'is_overhead_centre'];
 
     protected $casts = [
         'gross_floor_area' => 'decimal:2',
@@ -14,6 +14,7 @@ class Project extends Model
         'cost_estimate' => 'decimal:2',
         'exclude_from_estimator' => 'boolean',
         'is_overhead_centre' => 'boolean',
+        'project_start_date' => 'date',
     ];
 
     public function getProjectNumberAttribute()
@@ -29,6 +30,14 @@ class Project extends Model
     public function getExcludedFromEstimateAttribute()
     {
         return $this->exclude_from_estimator;
+    }
+
+    public function getCostPerSeatAttribute(): ?float
+    {
+        if ($this->cost_estimate && $this->seating_capacity) {
+            return round($this->cost_estimate / $this->seating_capacity, 2);
+        }
+        return null;
     }
 
     public function region()

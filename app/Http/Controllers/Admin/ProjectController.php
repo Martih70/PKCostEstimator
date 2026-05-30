@@ -48,6 +48,8 @@ class ProjectController extends Controller
             'name' => 'required|string',
             'region_id' => 'required|exists:regions,id',
             'budget_cost' => 'nullable|numeric|min:0',
+            'seating_capacity' => 'nullable|integer|min:1|max:65535',
+            'project_start_date' => 'nullable|date',
             'notes' => 'nullable|string',
         ]);
 
@@ -65,6 +67,8 @@ class ProjectController extends Controller
 
         $validated = $request->validate([
             'gross_floor_area' => 'nullable|numeric|min:0',
+            'seating_capacity' => 'nullable|integer|min:1|max:65535',
+            'project_start_date' => 'nullable|date',
             'exclude_from_estimator' => 'boolean',
         ]);
 

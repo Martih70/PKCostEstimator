@@ -78,6 +78,31 @@
                 @enderror
             </div>
 
+            <!-- Project Start Date -->
+            <div>
+                <label for="project_start_date" class="block text-sm font-medium text-gray-900 mb-2">Project Start Date</label>
+                <input type="date" id="project_start_date" name="project_start_date" value="{{ old('project_start_date') }}"
+                    class="w-full rounded-lg px-4 py-2 text-sm focus:outline-none transition-all"
+                    style="background: white; border: 1px solid #e5e5e5; color: #1b1b18;">
+                <p class="text-xs mt-1" style="color: #706f6c;">Anticipated start date. Used to calculate time-based cost escalation from historic data.</p>
+                @error('project_start_date')
+                    <p class="text-sm mt-1" style="color: #ef4444;">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <!-- Seating Capacity -->
+            <div>
+                <label for="seating_capacity" class="block text-sm font-medium text-gray-900 mb-2">Seating Capacity (main hall)</label>
+                <input type="number" id="seating_capacity" name="seating_capacity" value="{{ old('seating_capacity') }}" min="1" max="65535" step="1"
+                    class="w-full rounded-lg px-4 py-2 text-sm focus:outline-none transition-all"
+                    style="background: white; border: 1px solid #e5e5e5; color: #1b1b18;"
+                    placeholder="e.g., 150">
+                <p class="text-xs mt-1" style="color: #706f6c;">Number of seats in the main hall. Used for cost-per-seat forecasting.</p>
+                @error('seating_capacity')
+                    <p class="text-sm mt-1" style="color: #ef4444;">{{ $message }}</p>
+                @enderror
+            </div>
+
             <!-- Notes -->
             <div>
                 <label for="notes" class="block text-sm font-medium text-gray-900 mb-2">Notes</label>
