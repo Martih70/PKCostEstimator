@@ -72,7 +72,7 @@ class HistoricalEnrichmentController extends Controller
                 'subtotal' => $subtotal,
                 'pct'      => $totalValue > 0 ? round($subtotal / $totalValue * 100, 1) : 0,
                 'lines'    => $rows->map(fn($r) => [
-                    'date'        => $r->transaction_date,
+                    'date'        => substr($r->transaction_date, 0, 10),
                     'description' => $r->item_description,
                     'amount'      => $r->amount,
                 ])->values(),
@@ -80,8 +80,8 @@ class HistoricalEnrichmentController extends Controller
         })->values();
 
         $dates    = $transactions->pluck('transaction_date')->filter()->sort()->values();
-        $earliest = $dates->first();
-        $latest   = $dates->last();
+        $earliest = $dates->first() ? substr($dates->first(), 0, 10) : null;
+        $latest   = $dates->last()  ? substr($dates->last(),  0, 10) : null;
         $durationMonths = null;
         if ($earliest && $latest && $earliest !== $latest) {
             $durationMonths = (int) round(

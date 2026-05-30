@@ -332,6 +332,7 @@
             saving: false,
             saveSuccess: false,
             saveError: '',
+            _abortController: null,
 
             init() {},
 
@@ -378,6 +379,10 @@
             },
 
             async selectProject(id) {
+                // Cancel any in-flight request for a previous selection
+                if (this._abortController) this._abortController.abort();
+                this._abortController = new AbortController();
+
                 this.selectedId  = id;
                 this.loading     = true;
                 this.detail      = null;
@@ -386,7 +391,7 @@
                 this.saveError   = '';
 
                 try {
-                    const res  = await fetch(`/admin/historical-enrichment/${id}`);
+                    const res  = await fetch(`/admin/historical-enrichment/${id}`, { signal: this._abortController.signal });
                     const data = await res.json();
                     this.detail = data;
                     this.form.gross_floor_area = data.project.gross_floor_area ?? '';
@@ -396,7 +401,7 @@
                     this.form.completion_date  = data.project.completion_date ?? '';
                     this.form.notes            = data.project.notes ?? '';
                 } catch (e) {
-                    this.saveError = 'Failed to load project data.';
+                    if (e.name !== 'AbortError') this.saveError = 'Failed to load project data.';
                 } finally {
                     this.loading = false;
                     this.$nextTick(() => {
