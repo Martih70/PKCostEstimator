@@ -74,6 +74,6 @@ class ProjectController extends Controller
 
         $project->update($validated);
 
-        return back()->with('success', 'Project updated.');
+        return back()->with('updated_id', $id);
     }
 }
