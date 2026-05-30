@@ -312,16 +312,7 @@
     <script>
     function enrichment() {
         return {
-            allProjects: @json($projects->map(fn($p) => [
-                'id'               => $p->id,
-                'name'             => $p->name,
-                'project_nr'       => $p->project_nr,
-                'region_id'        => $p->region_id,
-                'region_name'      => $p->region?->name,
-                'gross_floor_area' => $p->gross_floor_area,
-                'seating_capacity' => $p->seating_capacity,
-                'total_value'      => $p->total_value,
-            ])),
+            allProjects: @json($projectsJson),
 
             filters: { search: '', region: '', enriched: '', pdCode: '', minValue: '', maxValue: '' },
             selectedId: null,
