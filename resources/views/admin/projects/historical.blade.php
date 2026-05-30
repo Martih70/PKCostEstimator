@@ -42,7 +42,7 @@
                                         —
                                     @endif
                                 </td>
-                                @php $tickColor = session('updated_id') == $project->id ? '#10b981' : '#505b93'; @endphp
+                                @php $tickColor = session('updated_id') == $project->id ? '#ef4444' : '#505b93'; @endphp
                                 <td class="px-6 py-4 text-right text-gray-900">
                                     <form method="POST" action="{{ route('admin.projects.update', $project->id) }}" class="inline-flex gap-2">
                                         @csrf
