@@ -39,20 +39,22 @@ class ProjectReportController extends Controller
         $escalationApplied = false;
 
         if ($project->project_start_date) {
-            // Average of each comparable historical project's latest transaction date
+            // One latest-transaction timestamp per comparable project, then average those
             $avgTimestamp = DB::table('projects')
                 ->join('transactions', 'projects.id', '=', 'transactions.project_id')
                 ->where('projects.project_type', 'historical')
                 ->where('projects.region_id', $project->region_id)
-                ->select(DB::raw('AVG(strftime(\'%s\', transactions.transaction_date)) as avg_ts'))
-                ->value('avg_ts');
+                ->groupBy('projects.id')
+                ->selectRaw("MAX(strftime('%s', transactions.transaction_date)) as latest_ts")
+                ->get()
+                ->avg('latest_ts');
 
             if ($avgTimestamp) {
                 $baseDataDate = \Carbon\Carbon::createFromTimestamp((int) $avgTimestamp)->startOfMonth();
                 $projectStart = \Carbon\Carbon::parse($project->project_start_date)->startOfMonth();
                 $escalationMonths = (int) round($baseDataDate->diffInMonths($projectStart, false));
 
-                if ($escalationMonths > 0) {
+                if ($escalationMonths !== 0) {
                     $escalationFactor = pow(1 + $monthlyRate / 100, $escalationMonths);
                     $escalationApplied = true;
                 }

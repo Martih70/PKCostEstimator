@@ -52,7 +52,9 @@ class CalculateRegionalRates extends Command
     {
         $this->info('Step 1: Calculating project element costs from transactions...');
 
-        $projects = Project::whereNotNull('gross_floor_area')->get();
+        $projects = Project::whereNotNull('gross_floor_area')
+            ->where('project_type', 'historical')
+            ->get();
         $elements = EstimatingElement::all();
 
         $totalCalculated = 0;
@@ -116,11 +118,17 @@ class CalculateRegionalRates extends Command
 
                 if (count($rates) > 0) {
                     sort($rates);
+                    $count = count($rates);
 
-                    $lowRate = min($rates);
-                    $mediumRate = array_sum($rates) / count($rates);
-                    $highRate = max($rates);
-                    $highPlusRate = $highRate * 1.15; // High + 15%
+                    $lowRate  = $rates[0];
+                    $highRate = $rates[$count - 1];
+
+                    // Median: more robust than mean when dataset is small or has outliers
+                    $mediumRate = $count % 2 === 0
+                        ? ($rates[$count / 2 - 1] + $rates[$count / 2]) / 2
+                        : $rates[(int) ($count / 2)];
+
+                    $highPlusRate = $highRate * 1.15;
 
                     // Get min/max project numbers for audit trail
                     $projectNumbers = ProjectElementCost::whereHas('project', function ($query) use ($region) {
