@@ -22,9 +22,10 @@ class HistoricalEnrichmentController extends Controller
                 'projects.region_id',
                 'projects.gross_floor_area',
                 'projects.seating_capacity',
+                'projects.exclude_from_estimator',
                 DB::raw('SUM(transactions.amount) as total_value')
             )
-            ->groupBy('projects.id', 'projects.name', 'projects.project_nr', 'projects.region_id', 'projects.gross_floor_area', 'projects.seating_capacity')
+            ->groupBy('projects.id', 'projects.name', 'projects.project_nr', 'projects.region_id', 'projects.gross_floor_area', 'projects.seating_capacity', 'projects.exclude_from_estimator')
             ->orderBy('projects.name')
             ->get();
 
@@ -38,14 +39,15 @@ class HistoricalEnrichmentController extends Controller
             ->pluck('transactions.raw_pd_code');
 
         $projectsJson = $projects->map(fn($p) => [
-            'id'               => $p->id,
-            'name'             => $p->name,
-            'project_nr'       => $p->project_nr,
-            'region_id'        => $p->region_id,
-            'region_name'      => $p->region?->name,
-            'gross_floor_area' => $p->gross_floor_area,
-            'seating_capacity' => $p->seating_capacity,
-            'total_value'      => $p->total_value,
+            'id'                      => $p->id,
+            'name'                    => $p->name,
+            'project_nr'              => $p->project_nr,
+            'region_id'               => $p->region_id,
+            'region_name'             => $p->region?->name,
+            'gross_floor_area'        => $p->gross_floor_area,
+            'seating_capacity'        => $p->seating_capacity,
+            'total_value'             => $p->total_value,
+            'exclude_from_estimator'  => (bool) $p->exclude_from_estimator,
         ])->values();
 
         return view('admin.historical-enrichment.index', compact('projects', 'regions', 'pdCodes', 'projectsJson'));
@@ -68,10 +70,11 @@ class HistoricalEnrichmentController extends Controller
         $grouped = $transactions->groupBy('raw_pd_code')->map(function ($rows) use ($totalValue) {
             $subtotal = $rows->sum('amount');
             return [
-                'pd_code'  => $rows->first()->raw_pd_code,
-                'subtotal' => $subtotal,
-                'pct'      => $totalValue > 0 ? round($subtotal / $totalValue * 100, 1) : 0,
-                'lines'    => $rows->map(fn($r) => [
+                'pd_code'      => $rows->first()->raw_pd_code,
+                'descriptions' => $rows->pluck('item_description')->filter()->unique()->values()->all(),
+                'subtotal'     => $subtotal,
+                'pct'          => $totalValue > 0 ? round($subtotal / $totalValue * 100, 1) : 0,
+                'lines'        => $rows->map(fn($r) => [
                     'date'        => substr($r->transaction_date, 0, 10),
                     'description' => $r->item_description,
                     'amount'      => $r->amount,
@@ -97,10 +100,11 @@ class HistoricalEnrichmentController extends Controller
                 'region'           => $project->region?->name,
                 'gross_floor_area' => $project->gross_floor_area,
                 'seating_capacity' => $project->seating_capacity,
-                'area_source'      => $project->area_source,
-                'area_verified'    => $project->area_verified,
-                'completion_date'  => $project->completion_date?->format('Y-m-d'),
-                'notes'            => $project->notes,
+                'area_source'            => $project->area_source,
+                'area_verified'          => $project->area_verified,
+                'completion_date'        => $project->completion_date?->format('Y-m-d'),
+                'notes'                  => $project->notes,
+                'exclude_from_estimator' => (bool) $project->exclude_from_estimator,
             ],
             'total_value'      => $totalValue,
             'tx_count'         => $txCount,
@@ -116,12 +120,13 @@ class HistoricalEnrichmentController extends Controller
         $project = Project::where('project_type', 'historical')->findOrFail($id);
 
         $validated = $request->validate([
-            'gross_floor_area' => 'nullable|numeric|min:1',
-            'seating_capacity' => 'nullable|integer|min:1|max:65535',
-            'area_source'      => 'nullable|in:Drawing,Survey,Satellite,Estimate,Unknown',
-            'area_verified'    => 'nullable|in:Pending,Yes,No',
-            'completion_date'  => 'nullable|date',
-            'notes'            => 'nullable|string|max:2000',
+            'gross_floor_area'        => 'nullable|numeric|min:1',
+            'seating_capacity'        => 'nullable|integer|min:1|max:65535',
+            'area_source'             => 'nullable|in:Drawing,Survey,Satellite,Estimate,Unknown',
+            'area_verified'           => 'nullable|in:Pending,Yes,No',
+            'completion_date'         => 'nullable|date',
+            'notes'                   => 'nullable|string|max:2000',
+            'exclude_from_estimator'  => 'nullable|boolean',
         ]);
 
         $project->update($validated);

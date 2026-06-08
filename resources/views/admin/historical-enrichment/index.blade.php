@@ -59,6 +59,7 @@
                             <th class="px-4 py-3 text-right font-semibold text-gray-900">Rate/m²</th>
                             <th class="px-4 py-3 text-right font-semibold text-gray-900">Cost/Seat</th>
                             <th class="px-4 py-3 text-center font-semibold text-gray-900">Enriched?</th>
+                            <th class="px-4 py-3 text-center font-semibold text-gray-900">Excluded?</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -78,10 +79,15 @@
                                 <td class="px-4 py-3 text-center">
                                     <span x-html="enrichedBadge(p)"></span>
                                 </td>
+                                <td class="px-4 py-3 text-center">
+                                    <span x-show="p.exclude_from_estimator"
+                                        class="inline-block px-2 py-0.5 rounded text-xs font-semibold"
+                                        style="background: #fee2e2; color: #ef4444;">Excluded</span>
+                                </td>
                             </tr>
                         </template>
                         <tr x-show="filteredProjects.length === 0">
-                            <td colspan="9" class="px-4 py-8 text-center text-gray-500">No projects match the current filters.</td>
+                            <td colspan="10" class="px-4 py-8 text-center text-gray-500">No projects match the current filters.</td>
                         </tr>
                     </tbody>
                 </table>
@@ -151,6 +157,7 @@
                         <thead style="background: #fafafa; border-bottom: 1px solid #e5e5e5;">
                             <tr>
                                 <th class="px-6 py-3 text-left font-semibold text-gray-900">PD Code</th>
+                                <th class="px-6 py-3 text-left font-semibold text-gray-900">Description(s)</th>
                                 <th class="px-6 py-3 text-right font-semibold text-gray-900">Total Amount (PKR)</th>
                                 <th class="px-6 py-3 text-right font-semibold text-gray-900">% of Total</th>
                             </tr>
@@ -167,6 +174,7 @@
                                                 <span x-text="expandedGroups.includes(idx) ? '▼' : '▶'" class="text-xs mr-2" style="color: #505b93;"></span>
                                                 <span x-text="group.pd_code"></span>
                                             </td>
+                                            <td class="px-6 py-3 text-gray-600 text-xs truncate max-w-xs" x-text="group.descriptions.join(', ')" :title="group.descriptions.join(', ')"></td>
                                             <td class="px-6 py-3 text-right font-mono text-gray-900" x-text="formatPKR(group.subtotal)"></td>
                                             <td class="px-6 py-3 text-right text-gray-600" x-text="group.pct + '%'"></td>
                                         </tr>
@@ -174,7 +182,7 @@
                                         <template x-if="expandedGroups.includes(idx)">
                                             <template x-for="line in group.lines" :key="line.description">
                                                 <tr style="background: #f8f7ff; border-bottom: 1px solid #ede9fe;">
-                                                    <td class="px-6 py-2 pl-12 text-gray-600">
+                                                    <td class="px-6 py-2 pl-12 text-gray-600" colspan="2">
                                                         <span class="text-xs mr-3" style="color: #706f6c;" x-text="line.date"></span>
                                                         <span x-text="line.description"></span>
                                                     </td>
@@ -190,7 +198,7 @@
                         </tbody>
                         <tfoot style="background: #fafafa; border-top: 2px solid #e5e5e5;">
                             <tr>
-                                <td class="px-6 py-3 font-bold text-gray-900">TOTAL</td>
+                                <td class="px-6 py-3 font-bold text-gray-900" colspan="2">TOTAL</td>
                                 <td class="px-6 py-3 text-right font-bold font-mono text-gray-900" x-text="detail ? 'PKR ' + formatPKR(detail.total_value) : '—'"></td>
                                 <td class="px-6 py-3 text-right font-bold text-gray-900">100%</td>
                             </tr>
@@ -252,6 +260,21 @@
                             <textarea x-model="form.notes" rows="3" maxlength="2000"
                                 class="w-full rounded-lg px-3 py-2 text-sm"
                                 style="border: 1px solid #e5e5e5; background: white;"></textarea>
+                        </div>
+
+                        <div class="md:col-span-2">
+                            <label class="flex items-start gap-3 cursor-pointer select-none">
+                                <input type="checkbox" x-model="form.exclude_from_estimator"
+                                    class="mt-0.5 h-4 w-4 rounded"
+                                    style="accent-color: #ef4444;" />
+                                <span>
+                                    <span class="block text-sm font-medium text-gray-900">Exclude from rate calculation</span>
+                                    <span class="block text-xs mt-0.5" style="color: #706f6c;">
+                                        Tick this if the project has incomplete transaction data or an unreliable GFA.
+                                        It will be omitted when <code class="font-mono">php artisan calculate:rates</code> is next run.
+                                    </span>
+                                </span>
+                            </label>
                         </div>
                     </div>
 
@@ -327,6 +350,7 @@
                 area_verified: '',
                 completion_date: '',
                 notes: '',
+                exclude_from_estimator: false,
             },
 
             saving: false,
@@ -394,12 +418,13 @@
                     const res  = await fetch(`/admin/historical-enrichment/${id}`, { signal: this._abortController.signal });
                     const data = await res.json();
                     this.detail = data;
-                    this.form.gross_floor_area = data.project.gross_floor_area ?? '';
-                    this.form.seating_capacity = data.project.seating_capacity ?? '';
-                    this.form.area_source      = data.project.area_source ?? '';
-                    this.form.area_verified    = data.project.area_verified ?? '';
-                    this.form.completion_date  = data.project.completion_date ?? '';
-                    this.form.notes            = data.project.notes ?? '';
+                    this.form.gross_floor_area       = data.project.gross_floor_area ?? '';
+                    this.form.seating_capacity       = data.project.seating_capacity ?? '';
+                    this.form.area_source            = data.project.area_source ?? '';
+                    this.form.area_verified          = data.project.area_verified ?? '';
+                    this.form.completion_date        = data.project.completion_date ?? '';
+                    this.form.notes                  = data.project.notes ?? '';
+                    this.form.exclude_from_estimator = data.project.exclude_from_estimator ?? false;
                 } catch (e) {
                     if (e.name !== 'AbortError') this.saveError = 'Failed to load project data.';
                 } finally {
@@ -442,8 +467,9 @@
                         // Update the lookup table row in-memory
                         const row = this.allProjects.find(p => p.id === this.selectedId);
                         if (row) {
-                            row.gross_floor_area = this.form.gross_floor_area ? parseFloat(this.form.gross_floor_area) : null;
-                            row.seating_capacity = this.form.seating_capacity ? parseInt(this.form.seating_capacity) : null;
+                            row.gross_floor_area       = this.form.gross_floor_area ? parseFloat(this.form.gross_floor_area) : null;
+                            row.seating_capacity       = this.form.seating_capacity ? parseInt(this.form.seating_capacity) : null;
+                            row.exclude_from_estimator = this.form.exclude_from_estimator;
                         }
 
                         setTimeout(() => { this.saveSuccess = false; }, 4000);
