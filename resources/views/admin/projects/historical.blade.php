@@ -22,7 +22,7 @@
                             <th class="px-6 py-3 text-left font-semibold text-gray-900">Unique ID</th>
                             <th class="px-6 py-3 text-left font-semibold text-gray-900">Name</th>
                             <th class="px-6 py-3 text-left font-semibold text-gray-900">Region</th>
-                            <th class="px-6 py-3 text-right font-semibold text-gray-900">Budget Cost</th>
+                            <th class="px-6 py-3 text-right font-semibold text-gray-900">Total Value (txns)</th>
                             <th class="px-6 py-3 text-right font-semibold text-gray-900">GFA (m²)</th>
                             <th class="px-6 py-3 text-right font-semibold text-gray-900">Seats</th>
                             <th class="px-6 py-3 text-center font-semibold text-gray-900">Exclude</th>
@@ -36,10 +36,11 @@
                                 <td class="px-6 py-4 font-medium text-gray-900">{{ $project->name }}</td>
                                 <td class="px-6 py-4 text-gray-600">{{ $project->region?->name ?? '—' }}</td>
                                 <td class="px-6 py-4 text-right text-gray-900">
-                                    @if($project->budget_cost)
-                                        PKR {{ number_format($project->budget_cost, 0) }}
+                                    @if($project->total_value > 0)
+                                        PKR {{ number_format($project->total_value, 0) }}
+                                        <span class="text-xs text-gray-500">({{ $project->transaction_count }} txns)</span>
                                     @else
-                                        —
+                                        <span class="text-red-500" title="No transactions linked to this project">— no transactions</span>
                                     @endif
                                 </td>
                                 @php

@@ -28,7 +28,12 @@ class ProjectController extends Controller
     {
         $historicalProjects = Project::with('region')
             ->where('project_type', 'historical')
-            ->orderBy('name')
+            ->leftJoin('transactions', 'projects.id', '=', 'transactions.project_id')
+            ->select('projects.*')
+            ->selectRaw('COALESCE(SUM(transactions.amount), 0) as total_value')
+            ->selectRaw('COUNT(transactions.id) as transaction_count')
+            ->groupBy('projects.id')
+            ->orderBy('projects.name')
             ->get();
 
         return view('admin.projects.historical', compact('historicalProjects'));
