@@ -29,6 +29,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Dashboard - accessible to all authenticated users
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
+    // How It Works - explanatory walkthrough, accessible to all authenticated users
+    Route::get('/how-it-works', fn() => view('pages.how-it-works'))->name('how-it-works');
+
     // Estimator - accessible to cost_manager and admin
     Route::get('/estimator', [EstimatorController::class, 'index'])
         ->middleware('role:cost_manager,admin')
