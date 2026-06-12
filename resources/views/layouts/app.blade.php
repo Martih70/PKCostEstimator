@@ -321,19 +321,8 @@
                                 <span>How It Works</span>
                             </a>
 
-                            <!-- Estimator (cost_manager, admin) -->
+                            <!-- Projects (cost_manager, admin) -->
                             @if(auth()->user()->role === 'cost_manager' || auth()->user()->role === 'admin')
-                                <div class="pt-5">
-                                    <p class="section-label mb-2">Estimator</p>
-                                    <a href="{{ route('estimator.index') }}" class="nav-link flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium {{ request()->routeIs('estimator.*') ? 'nav-active text-gray-900' : 'text-gray-600 border-l-[3px] border-transparent' }}">
-                                        <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: #0ea5e9;">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                                        </svg>
-                                        <span>Create Estimate</span>
-                                    </a>
-                                </div>
-
-                                <!-- Projects -->
                                 <div class="pt-5">
                                     <p class="section-label mb-2">Projects</p>
                                     <a href="{{ route('admin.projects.create') }}" class="nav-link flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium {{ request()->routeIs('admin.projects.create') ? 'nav-active text-gray-900' : 'text-gray-600 border-l-[3px] border-transparent' }}">
@@ -342,17 +331,23 @@
                                         </svg>
                                         <span>Add Project</span>
                                     </a>
-                                    <a href="{{ route('admin.projects.index') }}" class="nav-link flex items-center gap-3 rounded-xl px-3 py-2 text-sm text-gray-500 {{ request()->routeIs('admin.projects.index') ? 'font-medium text-gray-900' : '' }} ml-4 border-l-[3px] border-transparent">
-                                        <svg class="h-3.5 w-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: #a855f7;">
+                                    <a href="{{ route('estimator.index') }}" class="nav-link flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium {{ request()->routeIs('estimator.*') ? 'nav-active text-gray-900' : 'text-gray-600 border-l-[3px] border-transparent' }}">
+                                        <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: #0ea5e9;">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                                        </svg>
+                                        <span>Create Estimate</span>
+                                    </a>
+                                    <a href="{{ route('admin.projects.index') }}" class="nav-link flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium {{ request()->routeIs('admin.projects.index') ? 'nav-active text-gray-900' : 'text-gray-600 border-l-[3px] border-transparent' }}">
+                                        <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: #a855f7;">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                         </svg>
-                                        <span>Forecast Reports</span>
+                                        <span>Forecast Projects</span>
                                     </a>
-                                    <a href="{{ route('project.reports-historical') }}" class="nav-link flex items-center gap-3 rounded-xl px-3 py-2 text-sm text-gray-500 {{ request()->routeIs('project.reports-historical', 'project.report-historical') ? 'font-medium text-gray-900' : '' }} ml-4 border-l-[3px] border-transparent">
-                                        <svg class="h-3.5 w-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: #a855f7;">
+                                    <a href="{{ route('project.reports-historical') }}" class="nav-link flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium {{ request()->routeIs('project.reports-historical', 'project.report-historical') ? 'nav-active text-gray-900' : 'text-gray-600 border-l-[3px] border-transparent' }}">
+                                        <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: #a855f7;">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                                         </svg>
-                                        <span>Historical Reports</span>
+                                        <span>Historical Projects</span>
                                     </a>
                                 </div>
                             @endif

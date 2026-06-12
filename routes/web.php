@@ -75,12 +75,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/transactions/import', [TransactionController::class, 'importForm'])->name('admin.transactions.import');
         Route::post('/transactions/import', [TransactionController::class, 'processImport'])->name('admin.transactions.process-import');
 
-        // Projects
-        Route::get('/projects', [ProjectController::class, 'index'])->name('admin.projects.index');
+        // Projects (Historical) - admin only
         Route::get('/projects/historical', [ProjectController::class, 'historical'])->name('admin.projects.historical');
-        Route::get('/projects/create', [ProjectController::class, 'create'])->name('admin.projects.create');
-        Route::post('/projects', [ProjectController::class, 'store'])->name('admin.projects.store');
-        Route::put('/projects/{id}', [ProjectController::class, 'update'])->name('admin.projects.update');
 
         // Rates
         Route::get('/rates', [RatesController::class, 'index'])->name('admin.rates.index');
@@ -105,6 +101,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/users/{user}/edit', [UserController::class, 'edit'])->name('admin.users.edit');
         Route::put('/users/{user}', [UserController::class, 'update'])->name('admin.users.update');
         Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('admin.users.destroy');
+    });
+
+    // Forecast Projects - accessible to cost_manager and admin
+    Route::middleware('role:cost_manager,admin')->prefix('admin')->group(function () {
+        Route::get('/projects', [ProjectController::class, 'index'])->name('admin.projects.index');
+        Route::get('/projects/create', [ProjectController::class, 'create'])->name('admin.projects.create');
+        Route::post('/projects', [ProjectController::class, 'store'])->name('admin.projects.store');
+        Route::put('/projects/{id}', [ProjectController::class, 'update'])->name('admin.projects.update');
     });
 
     // Profile

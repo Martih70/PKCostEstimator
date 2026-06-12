@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <div class="flex items-center justify-between">
-            <h2 class="text-2xl font-bold text-gray-900">Projects</h2>
+            <h2 class="text-2xl font-bold text-gray-900">Forecast Projects</h2>
             <a href="{{ route('admin.projects.create') }}" class="text-sm font-medium px-4 py-2 rounded-lg text-white transition" style="background: #505b93;">
                 Add Project
             </a>

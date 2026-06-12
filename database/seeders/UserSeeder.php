@@ -23,5 +23,25 @@ class UserSeeder extends Seeder
                 'email_verified_at' => now(),
             ]
         );
+
+        $roles = [
+            'admin' => 'Admin',
+            'cost_manager' => 'Cost Manager',
+            'reviewer' => 'Reviewer',
+        ];
+
+        foreach ($roles as $role => $label) {
+            for ($i = 1; $i <= 3; $i++) {
+                User::updateOrCreate(
+                    ['email' => "{$role}{$i}@pkcost.test"],
+                    [
+                        'name' => "{$label} {$i}",
+                        'password' => Hash::make('password'),
+                        'role' => $role,
+                        'email_verified_at' => now(),
+                    ]
+                );
+            }
+        }
     }
 }

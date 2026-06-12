@@ -58,8 +58,8 @@
                          'body'  => 'The resulting rate library — the "price book" the whole tool runs on — is shown on the Rates and Analytics pages.'],
                         ['color' => '#0ea5e9', 'bg' => '#e0f2fe', 'title' => '6 · Create Estimate',
                          'body'  => 'A Cost Manager picks a region and floor area for a new project, chooses a cost band (Low/Medium/High/High+) per building element, adds extras such as Externals or Contingency — and the Estimator totals it all up live.'],
-                        ['color' => '#a855f7', 'bg' => '#f3e8ff', 'title' => '7 · Forecast Projects & Reports',
-                         'body'  => 'Saving an estimate creates or updates a forecast project. Forecast Reports and Historical Reports then present these — and the historical actuals — as clean, shareable summaries, with Escalation applied to bring older costs up to today\'s prices.'],
+                        ['color' => '#a855f7', 'bg' => '#f3e8ff', 'title' => '7 · Forecast & Historical Projects',
+                         'body'  => 'Saving an estimate creates or updates a forecast project. Forecast Projects and Historical Projects then present these — and the historical actuals — as clean, shareable summaries, with Escalation applied to bring older costs up to today\'s prices.'],
                     ];
                 @endphp
 
@@ -126,7 +126,7 @@
                         Risk — and the total updates in real time as you work. Save it, and the figure is written
                         back onto the project as its forecast estimate.
                     </p>
-                    <p class="text-xs mt-2" style="color: #706f6c;"><strong>Linked to:</strong> every rate you see here comes straight from the Regional Rates library (the Rates / Analytics tabs). If that library is empty, out of date, or missing a region, your bands will be empty too — run <em>Rates → Recalculate</em> after new transactions or enrichment data go in. Saving an estimate turns the project into (or updates) a forecast project, which then shows up on Forecast Reports.</p>
+                    <p class="text-xs mt-2" style="color: #706f6c;"><strong>Linked to:</strong> every rate you see here comes straight from the Regional Rates library (the Rates / Analytics tabs). If that library is empty, out of date, or missing a region, your bands will be empty too — run <em>Rates → Recalculate</em> after new transactions or enrichment data go in. Open Create Estimate directly from a project on the Forecast Projects page to pre-fill its region and floor area, and save to write the total straight back onto that project.</p>
                 </div>
 
                 {{-- Add Project --}}
@@ -145,30 +145,30 @@
                     <p class="text-xs mt-2" style="color: #706f6c;"><strong>Linked to:</strong> this is the starting point for a new forecast — once the project exists, open it in Create Estimate to actually build its cost forecast.</p>
                 </div>
 
-                {{-- Forecast Reports --}}
+                {{-- Forecast Projects --}}
                 <div class="rounded-lg p-5" style="border: 1px solid #e5e5e5; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.07);">
                     <div class="flex items-center gap-2 mb-2">
                         <span class="inline-block w-2.5 h-2.5 rounded-full" style="background:#a855f7;"></span>
-                        <p class="font-semibold text-gray-900">Forecast Reports</p>
+                        <p class="font-semibold text-gray-900">Forecast Projects</p>
                         <span class="ml-auto">{!! $costMgr !!}{!! $admin !!}</span>
                     </div>
                     <p class="text-sm text-gray-600 leading-relaxed">
-                        A clean, shareable report view of forecast (still-being-planned) projects — presenting
-                        whatever was last saved from Create Estimate as a polished summary, broken down by
-                        building element and region.
+                        The list of forecast (still-being-planned) projects, with their current cost estimate and
+                        gross floor area as last saved from Create Estimate. Each row links through to a polished
+                        report broken down by building element and region.
                     </p>
-                    <p class="text-xs mt-2" style="color: #706f6c;"><strong>Linked to:</strong> this is purely a presentation layer over Create Estimate — change the estimate, and the report changes too.</p>
+                    <p class="text-xs mt-2" style="color: #706f6c;"><strong>Linked to:</strong> this is purely a presentation layer over Create Estimate — change the estimate, and the figures here (and the report behind each row) change too.</p>
                 </div>
 
-                {{-- Historical Reports --}}
+                {{-- Historical Projects --}}
                 <div class="rounded-lg p-5" style="border: 1px solid #e5e5e5; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.07);">
                     <div class="flex items-center gap-2 mb-2">
                         <span class="inline-block w-2.5 h-2.5 rounded-full" style="background:#a855f7;"></span>
-                        <p class="font-semibold text-gray-900">Historical Reports</p>
+                        <p class="font-semibold text-gray-900">Historical Projects</p>
                         <span class="ml-auto">{!! $costMgr !!}{!! $admin !!}</span>
                     </div>
                     <p class="text-sm text-gray-600 leading-relaxed">
-                        The same idea as Forecast Reports, but for completed projects — presenting their
+                        The same idea as Forecast Projects, but for completed projects — presenting their
                         <em>actual</em> recorded costs (drawn straight from Transactions) as a clean, shareable
                         summary, with the Escalation rate applied so old costs are expressed in today's money.
                     </p>
@@ -246,7 +246,7 @@
                         <em>Transactions → Import CSV</em> (columns: Date, PD Code, Area Code, AC Code MH,
                         Project Nr, Item Description, Amount).
                     </p>
-                    <p class="text-xs mt-2" style="color: #706f6c;"><strong>Linked to:</strong> this is the foundation everything else stands on. Every total you see — on Historical Enrichment, Historical Reports, Projects (Historical), and ultimately the Regional Rates library — is just these records summed and grouped (by PD code → building element).</p>
+                    <p class="text-xs mt-2" style="color: #706f6c;"><strong>Linked to:</strong> this is the foundation everything else stands on. Every total you see — on Historical Enrichment, Historical Projects, Projects (Historical), and ultimately the Regional Rates library — is just these records summed and grouped (by PD code → building element).</p>
                 </div>
 
                 {{-- Rates --}}
@@ -282,7 +282,7 @@
                         actually spent, which could be years ago; escalation lets reports project those costs
                         forward to today's (or a future project's) prices, so comparisons stay fair.
                     </p>
-                    <p class="text-xs mt-2" style="color: #706f6c;"><strong>Linked to:</strong> applied within Historical and Forecast Reports whenever costs from different points in time need to be compared on a like-for-like basis.</p>
+                    <p class="text-xs mt-2" style="color: #706f6c;"><strong>Linked to:</strong> applied within Historical and Forecast Projects whenever costs from different points in time need to be compared on a like-for-like basis.</p>
                 </div>
 
                 {{-- Users --}}
@@ -321,7 +321,7 @@
                 <li>To turn "this project cost X" into "this kind of work costs Y per square metre", someone needs to know how big the building is — that's what <strong>Historical Enrichment</strong> records.</li>
                 <li>With both costs and floor areas known, <strong>Recalculate Rates</strong> (on the Rates page) does the maths: PD codes are grouped into building elements, a cost-per-m² is worked out for each project and element, and the results are distilled into Low/Medium/High/High+ rates per region — the <strong>Regional Rates library</strong>.</li>
                 <li>That library is the foundation everything else stands on. <strong>Analytics</strong> lets reviewers browse it; <strong>Create Estimate</strong> lets Cost Managers actually <em>use</em> it to build a forecast for a brand-new project.</li>
-                <li>Saving that forecast creates a <strong>Forecast Project</strong>, presentable as a polished <strong>Forecast Report</strong> — while <strong>Historical Reports</strong> does the same for the actuals, with <strong>Escalation</strong> applied so old costs are expressed in today's prices.</li>
+                <li>Saving that forecast creates a <strong>Forecast Project</strong>, listed (with its cost estimate and floor area) on the <strong>Forecast Projects</strong> page and presentable as a polished report — while <strong>Historical Projects</strong> does the same for the actuals, with <strong>Escalation</strong> applied so old costs are expressed in today's prices.</li>
                 <li><strong>Users</strong> sits slightly outside this chain — it's where Admins decide who can do what, which is why the sidebar looks different for everyone.</li>
             </ol>
         </div>

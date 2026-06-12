@@ -30,18 +30,23 @@ class EstimatorController extends Controller
             ];
         }
 
+        $forecastProjects = Project::where('project_type', 'forecast')
+            ->orderBy('name')
+            ->get(['id', 'name', 'project_id']);
+
         return view('estimator.index', [
             'regions' => $regions,
             'elements' => $elements,
             'ratesJson' => json_encode($ratesData),
             'exchangeRates' => $exchangeRates,
             'project' => null,
+            'forecastProjects' => $forecastProjects,
         ]);
     }
 
     public function show($projectId)
     {
-        $project = Project::findOrFail($projectId);
+        $project = Project::with('region')->findOrFail($projectId);
 
         $regions = Region::orderBy('name')->get(['id', 'name', 'slug']);
         $elements = EstimatingElement::orderBy('sort_order')->get(['id', 'code', 'name']);

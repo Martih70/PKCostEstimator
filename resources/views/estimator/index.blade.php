@@ -1,12 +1,53 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="text-2xl font-bold text-gray-900">Cost Estimator</h2>
+        <div class="flex items-center justify-between flex-wrap gap-3">
+            <div>
+                <h2 class="text-2xl font-bold text-gray-900">Cost Estimator</h2>
+                @if($project)
+                    <p class="text-sm mt-0.5" style="color: #706f6c;">
+                        {{ $project->name }}
+                        @if($project->project_id)
+                            <span class="font-mono">· {{ $project->project_id }}</span>
+                        @endif
+                        @if($project->region)
+                            · {{ $project->region->name }}
+                        @endif
+                    </p>
+                @else
+                    <p class="text-sm mt-0.5" style="color: #706f6c;">Select a forecast project to build and save an estimate</p>
+                @endif
+            </div>
+            @if($project)
+                <a href="{{ route('admin.projects.index') }}" class="text-sm font-medium px-4 py-2 rounded-lg transition" style="background: #f5f5f5; border: 1px solid #e5e5e5; color: #505b93;">
+                    ← Back to Projects
+                </a>
+            @endif
+        </div>
     </x-slot>
 
 <div x-data="estimator()" style="background: linear-gradient(135deg, #fafafa 0%, #f0f0f0 100%); min-height: 100vh;" class="pb-20">
     <!-- Sticky Header -->
     <div class="sticky top-16 z-40" style="background: white; border-bottom: 1px solid #e5e5e5; box-shadow: 0 2px 4px -2px rgba(0, 0, 0, 0.1);">
         <div class="max-w-7xl mx-auto px-6 py-6">
+            @if($project)
+                <div class="flex items-center justify-end gap-3 mb-4 pb-4" style="border-bottom: 1px solid #e5e5e5;">
+                    <span x-show="saveSuccess" x-cloak x-transition class="text-sm font-medium" style="color: #10b981;">Saved ✓</span>
+                    <span x-show="saveError" x-cloak x-transition class="text-sm font-medium" style="color: #ef4444;" x-text="saveError"></span>
+                    <button type="button" @click="save()" :disabled="saving" class="text-sm font-medium px-4 py-2 rounded-lg text-white transition disabled:opacity-50" style="background: #505b93;">
+                        <span x-text="saving ? 'Saving…' : 'Save Estimate'"></span>
+                    </button>
+                </div>
+            @else
+                <div class="flex items-center gap-3 mb-4 pb-4 flex-wrap" style="border-bottom: 1px solid #e5e5e5;">
+                    <label for="projectPicker" class="text-sm font-medium text-gray-900 whitespace-nowrap">Estimating for:</label>
+                    <select id="projectPicker" onchange="if(this.value) window.location.href = '/estimator/' + this.value;" class="rounded-lg px-3 py-2 text-sm flex-1 sm:flex-none" style="border: 1px solid #e5e5e5; background: white; color: #1b1b18;">
+                        <option value="">Scratch (not saved to a project)…</option>
+                        @foreach($forecastProjects as $fp)
+                            <option value="{{ $fp->id }}">{{ $fp->name }}@if($fp->project_id) ({{ $fp->project_id }})@endif</option>
+                        @endforeach
+                    </select>
+                </div>
+            @endif
             <p class="text-xs font-semibold uppercase tracking-wider mb-2" style="color: #706f6c;">Estimated Project Cost</p>
             <div class="flex items-baseline justify-between">
                 <div>
@@ -268,8 +309,8 @@
 <script>
     function estimator() {
         return {
-            regionId: null,
-            floorArea: 0,
+            regionId: {{ $project?->region_id ?? 'null' }},
+            floorArea: {{ $project?->gross_floor_area ?? 0 }},
             currency: 'PKR',
             externalsEnabled: false,
             overheadEnabled: false,
@@ -280,6 +321,10 @@
             rates: {!! $ratesJson !!},
             exchangeRates: @json($exchangeRates->mapWithKeys(fn($r) => [$r->currency_code => (float)$r->rate])->toArray()),
             elements: @json($elements),
+            projectId: {{ $project?->id ?? 'null' }},
+            saving: false,
+            saveSuccess: false,
+            saveError: '',
 
             init() {
                 this.elements.forEach(el => {
@@ -369,6 +414,42 @@
                 if (!this.regionId) return false;
                 const regionIdStr = String(this.regionId);
                 return !this.rates[regionIdStr]?.[elementId];
+            },
+
+            async save() {
+                if (!this.projectId) return;
+
+                this.saving = true;
+                this.saveSuccess = false;
+                this.saveError = '';
+
+                try {
+                    const res = await fetch(`/estimator/${this.projectId}/save`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                            'Accept': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            cost_estimate: this.grandTotalPkr(),
+                            gross_floor_area: this.floorArea,
+                        }),
+                    });
+
+                    const data = await res.json();
+
+                    if (res.ok && data.success) {
+                        this.saveSuccess = true;
+                        setTimeout(() => this.saveSuccess = false, 3000);
+                    } else {
+                        this.saveError = data.message || 'Failed to save estimate';
+                    }
+                } catch (err) {
+                    this.saveError = 'Failed to save estimate';
+                } finally {
+                    this.saving = false;
+                }
             }
         };
     }
