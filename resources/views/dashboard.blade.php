@@ -123,7 +123,7 @@
                 <div class="lg:col-span-2 card-static p-6">
                     <div class="flex items-center justify-between mb-5">
                         <div>
-                            <h3 class="text-sm font-bold text-gray-900">Spend by Region</h3>
+                            <h3 class="text-sm font-bold text-gray-900">Historical Projects - Spend by Region</h3>
                             <p class="text-xs text-gray-400 mt-0.5">Historical transaction totals</p>
                         </div>
                         <span class="text-xs font-semibold px-2.5 py-1 rounded-full" style="background: #f0f0f8; color: #505b93;">PKR</span>
