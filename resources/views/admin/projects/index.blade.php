@@ -9,6 +9,18 @@
     </x-slot>
 
     <div class="space-y-12">
+            @if(session('success'))
+                <div class="rounded-lg bg-green-50 border border-green-200 px-4 py-3 text-sm text-green-800">
+                    {{ session('success') }}
+                </div>
+            @endif
+
+            @if(session('error'))
+                <div class="rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-800">
+                    {{ session('error') }}
+                </div>
+            @endif
+
             @if($forecastProjects->count() > 0)
                 <div class="rounded-lg overflow-x-auto" style="border: 1px solid #e5e5e5; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15), 0 10px 10px -5px rgba(0, 0, 0, 0.1);">
                     <table class="w-full text-sm">
@@ -97,6 +109,13 @@
                                                     Report
                                                 </a>
                                             @endif
+                                            <form method="POST" action="{{ route('admin.projects.destroy', $project->id) }}" onsubmit="return confirm('Delete \'{{ $project->name }}\'? This cannot be undone.');">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="block text-xs font-medium px-3 py-1 rounded-lg transition w-24" style="background: #fef2f2; color: #dc2626; border: 1px solid #fecaca;">
+                                                    Delete
+                                                </button>
+                                            </form>
                                         </div>
                                     </td>
                                 </tr>

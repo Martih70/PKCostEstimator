@@ -126,6 +126,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/projects/create', [ProjectController::class, 'create'])->name('admin.projects.create');
         Route::post('/projects', [ProjectController::class, 'store'])->name('admin.projects.store');
         Route::put('/projects/{id}', [ProjectController::class, 'update'])->name('admin.projects.update');
+        Route::delete('/projects/{id}', [ProjectController::class, 'destroy'])->name('admin.projects.destroy');
     });
 
     // Profile

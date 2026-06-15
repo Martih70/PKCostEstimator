@@ -84,4 +84,25 @@ class ProjectController extends Controller
 
         return back()->with('updated_id', $id)->with('updated_field', $updatedField);
     }
+
+    public function destroy($id)
+    {
+        $project = Project::findOrFail($id);
+
+        if ($project->project_type !== 'forecast') {
+            return back()->with('error', 'Only forecast projects can be deleted here.');
+        }
+
+        $elementCostCount = $project->projectElementCosts()->count();
+        $transactionCount = $project->transactions()->count();
+
+        if ($elementCostCount > 0 || $transactionCount > 0) {
+            return back()->with('error', "Cannot delete \"{$project->name}\" — it has saved estimate data ({$elementCostCount} element costs, {$transactionCount} transactions).");
+        }
+
+        $name = $project->name;
+        $project->delete();
+
+        return redirect()->route('admin.projects.index')->with('success', "Deleted \"{$name}\".");
+    }
 }
