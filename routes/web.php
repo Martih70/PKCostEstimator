@@ -49,6 +49,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->middleware('role:cost_manager,admin')
         ->name('project.report');
 
+    // Forecast approval workflow - accessible to cost_manager and admin
+    Route::post('/project/{projectId}/approve', [ProjectReportController::class, 'approve'])
+        ->middleware('role:cost_manager,admin')
+        ->name('project.approve');
+    Route::post('/project/{projectId}/unapprove', [ProjectReportController::class, 'unapprove'])
+        ->middleware('role:cost_manager,admin')
+        ->name('project.unapprove');
+
     // Stage 3: AI Advisory tools for the Project Report - accessible to cost_manager and admin
     Route::post('/project/{projectId}/ai/summary', [AiAdvisoryController::class, 'summary'])
         ->middleware('role:cost_manager,admin')

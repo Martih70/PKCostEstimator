@@ -15,6 +15,12 @@
 
     <div x-data="reportViewer()" x-init='exchangeRates = @json($exchangeRates); initExpandState();'>
 
+        @if(session('status'))
+            <div class="mb-6 rounded-lg px-4 py-3 text-sm font-medium" style="background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0;">
+                {{ session('status') }}
+            </div>
+        @endif
+
         <div class="mb-6 flex items-center gap-4">
             <label class="text-sm font-medium text-gray-900">Currency:</label>
             <select x-model="currency" class="rounded-lg px-3 py-2 text-sm" style="border: 1px solid #e5e5e5; background: white; color: #1b1b18;">
@@ -419,6 +425,48 @@
                         </p>
                     </div>
                     <p class="text-2xl font-bold text-gray-900" x-text="`${getCurrencySymbol()} ${formatNumber(convert({{ round($areaHigh) }}))}`"></p>
+                </div>
+            </div>
+
+            {{-- Forecast status / approval --}}
+            <div class="px-6 py-4 border-t border-gray-200 flex items-center justify-between flex-wrap gap-3">
+                <div class="flex items-center gap-2 flex-wrap">
+                    <span class="text-xs font-semibold uppercase tracking-wider" style="color: #706f6c;">Forecast Status</span>
+                    @if($project->status === 'approved')
+                        <span class="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold" style="background: #d1fae5; color: #065f46;">
+                            <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span> Approved
+                        </span>
+                        <span class="text-xs text-gray-400">
+                            by {{ $project->approvedBy?->name ?? 'Unknown' }} on {{ $project->approved_at->format('d M Y') }}
+                        </span>
+                    @elseif($project->status === 'report_completed')
+                        <span class="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold" style="background: #dbeafe; color: #1e40af;">
+                            <span class="h-1.5 w-1.5 rounded-full bg-blue-500"></span> Report Completed
+                        </span>
+                    @else
+                        <span class="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold" style="background: #fef3c7; color: #92400e;">
+                            <span class="h-1.5 w-1.5 rounded-full bg-amber-400"></span> Pending
+                        </span>
+                        <span class="text-xs text-gray-400">Save a cost estimate via the Estimator to mark this report as completed.</span>
+                    @endif
+                </div>
+
+                <div>
+                    @if($project->status === 'report_completed')
+                        <form method="POST" action="{{ route('project.approve', $project->id) }}">
+                            @csrf
+                            <button type="submit" class="px-4 py-2 rounded-lg text-sm font-semibold text-white transition" style="background: #10b981;">
+                                Approve Forecast
+                            </button>
+                        </form>
+                    @elseif($project->status === 'approved')
+                        <form method="POST" action="{{ route('project.unapprove', $project->id) }}" onsubmit="return confirm('Remove approval from this forecast? It will revert to Report Completed.');">
+                            @csrf
+                            <button type="submit" class="px-4 py-2 rounded-lg text-sm font-medium transition" style="background: #f5f5f5; border: 1px solid #e5e5e5; color: #505b93;">
+                                Remove Approval
+                            </button>
+                        </form>
+                    @endif
                 </div>
             </div>
 

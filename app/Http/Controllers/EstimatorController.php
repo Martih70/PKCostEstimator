@@ -90,6 +90,13 @@ class EstimatorController extends Controller
             $updateData['gross_floor_area'] = $validated['gross_floor_area'];
         }
 
+        // Re-saving the estimate changes the figures an earlier approval
+        // signed off on, so that approval no longer applies.
+        if ($project->approved_at !== null) {
+            $updateData['approved_at'] = null;
+            $updateData['approved_by'] = null;
+        }
+
         $project->update($updateData);
 
         return response()->json(['success' => true, 'message' => 'Estimate saved successfully']);

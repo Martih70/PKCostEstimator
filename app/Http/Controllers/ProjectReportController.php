@@ -430,6 +430,40 @@ class ProjectReportController extends Controller
         return view('reports.project', $data);
     }
 
+    /**
+     * Mark a forecast project's report as approved. Records who approved
+     * it and when — does not touch any cost figure.
+     */
+    public function approve($projectId)
+    {
+        $project = Project::findOrFail($projectId);
+
+        $project->update([
+            'approved_at' => now(),
+            'approved_by' => auth()->id(),
+        ]);
+
+        return redirect()->route('project.report', $projectId)
+            ->with('status', 'Forecast approved.');
+    }
+
+    /**
+     * Revert an approved forecast back to "Report Completed", e.g. if the
+     * approval was made in error or the estimate needs revising.
+     */
+    public function unapprove($projectId)
+    {
+        $project = Project::findOrFail($projectId);
+
+        $project->update([
+            'approved_at' => null,
+            'approved_by' => null,
+        ]);
+
+        return redirect()->route('project.report', $projectId)
+            ->with('status', 'Approval removed.');
+    }
+
     public function historicalIndex()
     {
         $historicalProjects = Project::with('region')

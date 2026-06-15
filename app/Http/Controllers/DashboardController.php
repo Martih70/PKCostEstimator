@@ -20,9 +20,11 @@ class DashboardController extends Controller
 
         if ($user->role === 'admin') {
             $forecastProjects = Project::where('project_type', 'forecast')
-                ->with('region')
+                ->with(['region', 'approvedBy'])
                 ->orderBy('name')
                 ->get();
+
+            $forecastProjectsByStatus = $forecastProjects->groupBy('status');
 
             $spendByRegion = DB::table('transactions')
                 ->join('projects', 'transactions.project_id', '=', 'projects.id')
@@ -42,6 +44,7 @@ class DashboardController extends Controller
                 'user_count'               => User::count(),
                 'last_import'              => Transaction::latest('created_at')->first()?->created_at,
                 'forecastProjects'         => $forecastProjects,
+                'forecastProjectsByStatus' => $forecastProjectsByStatus,
                 'spendByRegion'            => $spendByRegion,
             ];
         } elseif ($user->role === 'cost_manager') {

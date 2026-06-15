@@ -214,63 +214,83 @@
                 </div>
 
                 @if($forecastProjects && $forecastProjects->count() > 0)
-                    <div class="table-card">
-                        <table class="w-full text-sm">
-                            <thead>
-                                <tr style="background: #fafafa; border-bottom: 1px solid #ebebeb;">
-                                    <th class="px-5 py-3 text-left text-xs font-bold uppercase tracking-wider text-gray-400">Project</th>
-                                    <th class="px-5 py-3 text-left text-xs font-bold uppercase tracking-wider text-gray-400">Region</th>
-                                    <th class="px-5 py-3 text-right text-xs font-bold uppercase tracking-wider text-gray-400">GFA m²</th>
-                                    <th class="px-5 py-3 text-right text-xs font-bold uppercase tracking-wider text-gray-400">Estimate (PKR)</th>
-                                    <th class="px-5 py-3 text-right text-xs font-bold uppercase tracking-wider text-gray-400">Status</th>
-                                    <th class="px-5 py-3"></th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-gray-50">
-                                @foreach($forecastProjects as $project)
-                                    <tr class="hover:bg-gray-50 transition">
-                                        <td class="px-5 py-3.5 font-semibold text-gray-900">{{ $project->name }}</td>
-                                        <td class="px-5 py-3.5">
-                                            @if($project->region)
-                                                <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium" style="background: #f0f0f8; color: #505b93;">
-                                                    {{ $project->region->name }}
-                                                </span>
-                                            @else
-                                                <span class="text-gray-400">—</span>
-                                            @endif
-                                        </td>
-                                        <td class="px-5 py-3.5 text-right text-gray-700">
-                                            {{ $project->gross_floor_area ? number_format($project->gross_floor_area, 0) : '—' }}
-                                        </td>
-                                        <td class="px-5 py-3.5 text-right font-bold" style="color: #10b981;">
-                                            @if($project->cost_estimate)
-                                                {{ number_format($project->cost_estimate, 0) }}
-                                            @else
-                                                <span class="text-xs font-normal text-gray-400">Not estimated</span>
-                                            @endif
-                                        </td>
-                                        <td class="px-5 py-3.5 text-right">
-                                            @if($project->cost_estimate)
-                                                <span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold" style="background: #d1fae5; color: #065f46;">
-                                                    <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>Estimated
-                                                </span>
-                                            @else
-                                                <span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold" style="background: #fef3c7; color: #92400e;">
-                                                    <span class="h-1.5 w-1.5 rounded-full bg-amber-400"></span>Pending
-                                                </span>
-                                            @endif
-                                        </td>
-                                        <td class="px-5 py-3.5 text-right">
-                                            <a href="{{ route('estimator.show', $project->id) }}"
-                                               class="btn-primary inline-flex items-center rounded-lg px-3 py-1.5 text-xs font-semibold text-white"
-                                               style="background: #505b93;">
-                                                Open
-                                            </a>
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
+                    @php
+                        $statusGroups = [
+                            'pending'          => ['label' => 'Pending'],
+                            'report_completed' => ['label' => 'Report Completed'],
+                            'approved'         => ['label' => 'Approved'],
+                        ];
+                    @endphp
+
+                    <div class="space-y-6">
+                        @foreach($statusGroups as $statusKey => $meta)
+                            @php $group = $forecastProjectsByStatus->get($statusKey, collect()); @endphp
+                            <div>
+                                <p class="text-xs font-bold uppercase tracking-wider text-gray-400 mb-2">
+                                    {{ $meta['label'] }} ({{ $group->count() }})
+                                </p>
+
+                                @if($group->count() > 0)
+                                    <div class="table-card">
+                                        <table class="w-full text-sm">
+                                            <thead>
+                                                <tr style="background: #fafafa; border-bottom: 1px solid #ebebeb;">
+                                                    <th class="px-5 py-3 text-left text-xs font-bold uppercase tracking-wider text-gray-400">Project</th>
+                                                    <th class="px-5 py-3 text-left text-xs font-bold uppercase tracking-wider text-gray-400">Region</th>
+                                                    <th class="px-5 py-3 text-right text-xs font-bold uppercase tracking-wider text-gray-400">GFA m²</th>
+                                                    <th class="px-5 py-3 text-right text-xs font-bold uppercase tracking-wider text-gray-400">Estimate (PKR)</th>
+                                                    @if($statusKey === 'approved')
+                                                        <th class="px-5 py-3 text-right text-xs font-bold uppercase tracking-wider text-gray-400">Approved</th>
+                                                    @endif
+                                                    <th class="px-5 py-3"></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody class="divide-y divide-gray-50">
+                                                @foreach($group as $project)
+                                                    <tr class="hover:bg-gray-50 transition">
+                                                        <td class="px-5 py-3.5 font-semibold text-gray-900">{{ $project->name }}</td>
+                                                        <td class="px-5 py-3.5">
+                                                            @if($project->region)
+                                                                <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium" style="background: #f0f0f8; color: #505b93;">
+                                                                    {{ $project->region->name }}
+                                                                </span>
+                                                            @else
+                                                                <span class="text-gray-400">—</span>
+                                                            @endif
+                                                        </td>
+                                                        <td class="px-5 py-3.5 text-right text-gray-700">
+                                                            {{ $project->gross_floor_area ? number_format($project->gross_floor_area, 0) : '—' }}
+                                                        </td>
+                                                        <td class="px-5 py-3.5 text-right font-bold" style="color: #10b981;">
+                                                            @if($project->cost_estimate)
+                                                                {{ number_format($project->cost_estimate, 0) }}
+                                                            @else
+                                                                <span class="text-xs font-normal text-gray-400">Not estimated</span>
+                                                            @endif
+                                                        </td>
+                                                        @if($statusKey === 'approved')
+                                                            <td class="px-5 py-3.5 text-right text-xs text-gray-500">
+                                                                {{ $project->approvedBy?->name ?? 'Unknown' }}
+                                                                <br>{{ $project->approved_at?->format('d M Y') }}
+                                                            </td>
+                                                        @endif
+                                                        <td class="px-5 py-3.5 text-right">
+                                                            <a href="{{ $statusKey === 'pending' ? route('estimator.show', $project->id) : route('project.report', $project->id) }}"
+                                                               class="btn-primary inline-flex items-center rounded-lg px-3 py-1.5 text-xs font-semibold text-white"
+                                                               style="background: #505b93;">
+                                                                Open
+                                                            </a>
+                                                        </td>
+                                                    </tr>
+                                                @endforeach
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                @else
+                                    <p class="text-sm text-gray-400 italic px-1">None</p>
+                                @endif
+                            </div>
+                        @endforeach
                     </div>
                 @else
                     <div class="card p-8 text-center">
