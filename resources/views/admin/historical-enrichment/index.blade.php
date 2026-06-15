@@ -358,7 +358,13 @@
             saveError: '',
             _abortController: null,
 
-            init() {},
+            init() {
+                const params = new URLSearchParams(window.location.search);
+                const projectId = params.get('project');
+                if (projectId && this.allProjects.some(p => String(p.id) === projectId)) {
+                    this.selectProject(Number(projectId));
+                }
+            },
 
             get filteredProjects() {
                 return this.allProjects.filter(p => {

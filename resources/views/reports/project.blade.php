@@ -80,7 +80,7 @@
                     </p>
                 </div>
                 <div>
-                    <p class="text-xs font-semibold uppercase tracking-wider mb-1" style="color: #706f6c;">Escalation</p>
+                    <p class="text-xs font-semibold uppercase tracking-wider mb-1" style="color: #706f6c;">Inflation Factor</p>
                     @if($escalationApplied)
                         <p class="text-sm font-bold text-gray-900">
                             {{ $escalationMonths }} months at {{ $monthlyRate }}%/month
@@ -88,12 +88,27 @@
                         </p>
                         <p class="text-xs mt-0.5" style="color: #706f6c;">
                             Base data avg: {{ $baseDataDate->format('M Y') }}
-                            → Start: {{ \Carbon\Carbon::parse($project->project_start_date)->format('M Y') }}
+                            →
+                            @if($project->project_start_date)
+                                Start: {{ \Carbon\Carbon::parse($project->project_start_date)->format('M Y') }}
+                            @else
+                                Today: {{ $escalationTargetDate->format('M Y') }}
+                            @endif
+                        </p>
+                        @unless($project->project_start_date)
+                            <p class="text-xs mt-0.5" style="color: #f59e0b;">
+                                No project start date set — uplift calculated to today's prices instead.
+                            </p>
+                        @endunless
+                    @elseif($baseDataDate)
+                        <p class="text-sm font-bold text-gray-900" style="color: #706f6c;">Not applied</p>
+                        <p class="text-xs mt-0.5" style="color: #706f6c;">
+                            Historical data is already at current price levels (0 months difference).
                         </p>
                     @else
                         <p class="text-sm font-bold text-gray-900" style="color: #706f6c;">Not applied</p>
                         <p class="text-xs mt-0.5" style="color: #f59e0b;">
-                            No project start date set — set one to include time-based adjustment.
+                            No historical transaction data in this region to determine a base date.
                         </p>
                     @endif
                 </div>
@@ -172,6 +187,12 @@
                                     style="background: {{ $item['confidence']['bg'] }}; color: {{ $item['confidence']['color'] }};">
                                     {{ $item['confidence']['label'] }} ({{ $item['confidence']['count'] }})
                                 </span>
+                                @if($item['blend']['was_blended'])
+                                    <span class="block text-xs font-medium mt-1 w-fit" style="color: #92400e;"
+                                        title="Blended toward the regional mean: based on {{ $item['blend']['n'] }} local comparable project(s), pulled toward the all-region average of PKR {{ number_format($item['blend']['broad_mean'], 0) }}/m² (k = {{ $item['blend']['k'] }}). Click row for details.">
+                                        ⚖ Blended (n={{ $item['blend']['n'] }})
+                                    </span>
+                                @endif
                             </td>
                             <td class="px-6 py-3 text-gray-700 font-medium">{{ $item['name'] }}</td>
                             <td class="px-3 py-3 text-center text-gray-900" x-text="formatNumber(convert({{ $item['low']['rate'] }}))"></td>
@@ -183,6 +204,18 @@
                             <td class="px-3 py-3 text-center text-gray-900" x-text="formatNumber(convert({{ $item['high_plus']['rate'] }}))"></td>
                             <td class="px-3 py-3 text-right font-medium text-gray-900" x-text="formatNumber(convert({{ $item['high_plus']['cost'] }}))"></td>
                         </tr>
+
+                        {{-- Stage 1: Blend audit detail (Hidden by default) --}}
+                        @if($item['blend']['was_blended'])
+                            <tr x-show="expandedRows[{{ $elementId }}]" x-transition style="border-bottom: 1px solid #e5e5e5; background: #fffaf0;">
+                                <td colspan="9" class="px-6 py-2 text-xs" style="color: #92400e;">
+                                    Medium rate blended: local PKR {{ number_format($item['blend']['pre_blend']['medium'], 0) }}/m²
+                                    (based on {{ $item['blend']['n'] }} comparable project(s))
+                                    → PKR {{ number_format($item['blend']['medium'], 0) }}/m²
+                                    (regional mean PKR {{ number_format($item['blend']['broad_mean'], 0) }}/m², k = {{ $item['blend']['k'] }})
+                                </td>
+                            </tr>
+                        @endif
 
                         {{-- PD Code Rows (Hidden by default) --}}
                         @if(count($item['pdCodes']) > 0)
@@ -293,6 +326,12 @@
                         Avg rate: PKR {{ number_format($avgAreaRatePerM2, 0) }} / m²
                     </p>
                     @endif
+                    {{-- Stage 2: band-width context --}}
+                    <p class="text-xs mt-2" style="color: #706f6c;">
+                        Low/High band reflects {{ $areaBand['n'] }} comparable project(s)
+                        (uncertainty ×{{ number_format($areaBand['multiplier'], 2) }})@if($areaUsedBroadSpread) — spread estimated from all regions due to limited local data @endif.
+                        Wider band = less data = more uncertainty.
+                    </p>
                 </div>
 
                 {{-- Seating-based column --}}
@@ -328,6 +367,12 @@
                         &nbsp;·&nbsp; {{ $project->seating_capacity }} seats
                     </p>
                     @endif
+                    {{-- Stage 2: band-width context --}}
+                    <p class="text-xs mt-2" style="color: #706f6c;">
+                        Low/High band reflects {{ $seatBand['n'] }} comparable project(s)
+                        (uncertainty ×{{ number_format($seatBand['multiplier'], 2) }})@if($seatUsedBroadSpread) — spread estimated from all regions due to limited local data @endif.
+                        Wider band = less data = more uncertainty.
+                    </p>
                     @else
                     <p class="text-sm text-gray-400 italic mt-2">
                         @if(!$project->seating_capacity)
@@ -379,6 +424,123 @@
 
         </div>
 
+        <!-- Stage 3/4: AI Executive Summary (Beta) -->
+        <div class="rounded-lg p-6" style="background: #fffaf0; border: 1px solid #e5e5e5;">
+            <h3 class="text-lg font-bold text-gray-900 mb-1">AI Executive Summary (Beta)</h3>
+            <p class="text-xs mb-4" style="color: #706f6c;">
+                AI commentary is advisory only. It cannot create or change any figure on this
+                page — every number above comes from deterministic calculation on transaction
+                data. Treat it as a second opinion, not a source of truth.
+            </p>
+
+            @if(!$aiConfigured)
+                <p class="text-sm italic" style="color: #92400e;">
+                    AI advisory tools require <code>ANTHROPIC_API_KEY</code> to be configured in <code>.env</code>.
+                </p>
+            @else
+                {{-- Executive Summary --}}
+                <div class="mb-4">
+                    <button type="button"
+                        @click="runAi('summary', '{{ route('project.ai.summary', $project->id) }}')"
+                        :disabled="aiLoading.summary"
+                        class="px-4 py-2 rounded-lg text-sm font-medium text-white transition disabled:opacity-50"
+                        style="background: #505b93;">
+                        <span x-show="!aiLoading.summary">Generate Summary</span>
+                        <span x-show="aiLoading.summary">Thinking…</span>
+                    </button>
+                </div>
+
+                <div x-show="aiErrors.summary" class="text-sm rounded-lg p-3 mb-3" style="background: #fef3c7; color: #92400e;" x-text="aiErrors.summary"></div>
+                <div x-show="aiResults.summary" class="mb-4 rounded-lg p-4 space-y-3" style="background: white; border: 1px solid #e5e5e5;">
+                    <p class="text-sm text-gray-900" x-text="aiResults.summary?.summary"></p>
+                    <ul class="list-disc list-inside text-sm text-gray-900 space-y-1" x-show="(aiResults.summary?.key_drivers || []).length > 0">
+                        <template x-for="(driver, idx) in (aiResults.summary?.key_drivers || [])" :key="idx">
+                            <li x-text="driver"></li>
+                        </template>
+                    </ul>
+                    <p x-show="aiResults.summary?.top_caveat" class="text-sm rounded-lg p-2" style="background: #fef3c7; color: #92400e;">
+                        <strong>Worth checking:</strong> <span x-text="aiResults.summary?.top_caveat"></span>
+                    </p>
+                </div>
+
+                {{-- Drill down --}}
+                <div x-show="aiResults.summary" style="border-top: 1px solid #e5e5e5;" class="pt-4">
+                    <button type="button" @click="showDrillDown = !showDrillDown" class="text-sm font-medium" style="color: #505b93;">
+                        <span x-show="!showDrillDown">▶ Show more detail</span>
+                        <span x-show="showDrillDown">▼ Hide detail</span>
+                    </button>
+
+                    <div x-show="showDrillDown" x-cloak class="mt-4">
+                        <div class="flex flex-wrap gap-3 mb-4">
+                            <button type="button"
+                                @click="runAi('similar', '{{ route('project.ai.similar-projects', $project->id) }}')"
+                                :disabled="aiLoading.similar"
+                                class="px-4 py-2 rounded-lg text-sm font-medium text-white transition disabled:opacity-50"
+                                style="background: #505b93;">
+                                <span x-show="!aiLoading.similar">Find Similar Projects</span>
+                                <span x-show="aiLoading.similar">Thinking…</span>
+                            </button>
+                            <button type="button"
+                                @click="runAi('explain', '{{ route('project.ai.explain', $project->id) }}')"
+                                :disabled="aiLoading.explain"
+                                class="px-4 py-2 rounded-lg text-sm font-medium text-white transition disabled:opacity-50"
+                                style="background: #505b93;">
+                                <span x-show="!aiLoading.explain">Full Explanation</span>
+                                <span x-show="aiLoading.explain">Thinking…</span>
+                            </button>
+                            <button type="button"
+                                @click="runAi('senseCheck', '{{ route('project.ai.sense-check', $project->id) }}')"
+                                :disabled="aiLoading.senseCheck"
+                                class="px-4 py-2 rounded-lg text-sm font-medium text-white transition disabled:opacity-50"
+                                style="background: #505b93;">
+                                <span x-show="!aiLoading.senseCheck">All Risk Flags</span>
+                                <span x-show="aiLoading.senseCheck">Thinking…</span>
+                            </button>
+                        </div>
+
+                        {{-- Find Similar Projects --}}
+                        <div x-show="aiErrors.similar" class="text-sm rounded-lg p-3 mb-3" style="background: #fef3c7; color: #92400e;" x-text="aiErrors.similar"></div>
+                        <div x-show="aiResults.similar" class="mb-4 space-y-3">
+                            <template x-for="(item, idx) in (aiResults.similar?.selections || [])" :key="idx">
+                                <div class="rounded-lg p-3" style="background: white; border: 1px solid #e5e5e5;">
+                                    <p class="font-semibold text-sm text-gray-900" x-text="item.project.name"></p>
+                                    <p class="text-xs mt-1" style="color: #706f6c;">
+                                        <span x-text="item.project.region"></span>
+                                        <template x-if="item.project.gross_floor_area_m2"><span> • GFA <span x-text="item.project.gross_floor_area_m2"></span> m²</span></template>
+                                        <template x-if="item.project.seating_capacity"><span> • <span x-text="item.project.seating_capacity"></span> seats</span></template>
+                                        <template x-if="item.project.total_rate_per_m2"><span> • <span x-text="`${getCurrencySymbol()} ${formatNumber(convert(item.project.total_rate_per_m2))}/m²`"></span></span></template>
+                                        <template x-if="item.project.cost_per_seat"><span> • <span x-text="`${getCurrencySymbol()} ${formatNumber(convert(item.project.cost_per_seat))}/seat`"></span></span></template>
+                                    </p>
+                                    <p class="text-sm mt-2 text-gray-900" x-text="item.reason"></p>
+                                </div>
+                            </template>
+                            <p x-show="(aiResults.similar?.selections || []).length === 0" class="text-sm italic" style="color: #706f6c;">No similar projects were identified.</p>
+                        </div>
+
+                        {{-- Full Explanation --}}
+                        <div x-show="aiErrors.explain" class="text-sm rounded-lg p-3 mb-3" style="background: #fef3c7; color: #92400e;" x-text="aiErrors.explain"></div>
+                        <div x-show="aiResults.explain" class="mb-4 rounded-lg p-3" style="background: white; border: 1px solid #e5e5e5;">
+                            <p class="text-sm text-gray-900" style="white-space: pre-wrap;" x-text="aiResults.explain?.explanation"></p>
+                        </div>
+
+                        {{-- All Risk Flags --}}
+                        <div x-show="aiErrors.senseCheck" class="text-sm rounded-lg p-3 mb-3" style="background: #fef3c7; color: #92400e;" x-text="aiErrors.senseCheck"></div>
+                        <div x-show="aiResults.senseCheck" class="mb-4 rounded-lg p-3 space-y-2" style="background: white; border: 1px solid #e5e5e5;">
+                            <p class="text-sm text-gray-900" x-text="aiResults.senseCheck?.summary"></p>
+                            <template x-for="(flag, idx) in (aiResults.senseCheck?.flags || [])" :key="idx">
+                                <div class="flex items-start gap-2 text-sm">
+                                    <span class="text-xs font-semibold uppercase px-2 py-0.5 rounded"
+                                        :style="flag.severity === 'high' ? 'background:#fee2e2;color:#991b1b;' : (flag.severity === 'medium' ? 'background:#fef3c7;color:#92400e;' : 'background:#f3f4f6;color:#374151;')"
+                                        x-text="flag.severity"></span>
+                                    <span class="text-gray-900" x-text="flag.message"></span>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+            @endif
+        </div>
+
         <!-- Action Buttons -->
         <div class="flex justify-end gap-4 pt-8">
             <a href="{{ route('admin.projects.index') }}" class="px-6 py-2 rounded-lg text-sm font-medium transition" style="background: #f5f5f5; border: 1px solid #e5e5e5; color: #505b93;">
@@ -398,6 +560,12 @@
                 currency: 'PKR',
                 exchangeRates: {},
                 expandedRows: {},
+
+                // Stage 3/4: AI Advisory
+                aiLoading: { summary: false, similar: false, explain: false, senseCheck: false },
+                aiResults: { summary: null, similar: null, explain: null, senseCheck: null },
+                aiErrors: { summary: null, similar: null, explain: null, senseCheck: null },
+                showDrillDown: false,
 
                 convert(pkriAmount) {
                     if (this.currency === 'PKR') return pkriAmount;
@@ -421,6 +589,36 @@
 
                 initExpandState() {
                     this.expandedRows = {};
+                },
+
+                // Stage 3: AI Advisory — calls one of the project.ai.* endpoints.
+                // These never return cost figures: only selections from a
+                // candidate list, or explanatory/advisory text.
+                async runAi(tool, url) {
+                    this.aiLoading[tool] = true;
+                    this.aiErrors[tool] = null;
+                    this.aiResults[tool] = null;
+
+                    try {
+                        const res = await fetch(url, {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                                'Accept': 'application/json',
+                            },
+                        });
+                        const data = await res.json();
+
+                        if (!res.ok || data.error) {
+                            this.aiErrors[tool] = data.error || 'Request failed.';
+                        } else {
+                            this.aiResults[tool] = data;
+                        }
+                    } catch (e) {
+                        this.aiErrors[tool] = 'Network error: ' + e.message;
+                    } finally {
+                        this.aiLoading[tool] = false;
+                    }
                 }
             };
         }

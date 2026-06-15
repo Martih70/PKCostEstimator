@@ -1,9 +1,12 @@
 <x-app-layout>
     <x-slot name="header">
         <div class="flex items-center justify-between">
-            <h2 class="text-2xl font-bold text-gray-900">Project Report (Historical)</h2>
+            <h2 class="text-2xl font-bold text-gray-900">Historical Project Report</h2>
             <div class="flex gap-3">
-                <a href="{{ route('admin.projects.historical') }}" class="text-sm font-medium px-4 py-2 rounded-lg transition" style="background: #f5f5f5; border: 1px solid #e5e5e5; color: #505b93;">
+                <a href="{{ route('admin.historical-enrichment.index', ['project' => $project->id]) }}" class="text-sm font-medium px-4 py-2 rounded-lg transition" style="background: #f5f5f5; border: 1px solid #e5e5e5; color: #505b93;">
+                    Edit Enrichment Data →
+                </a>
+                <a href="{{ route('project.reports-historical') }}" class="text-sm font-medium px-4 py-2 rounded-lg transition" style="background: #f5f5f5; border: 1px solid #e5e5e5; color: #505b93;">
                     ← Back
                 </a>
             </div>
@@ -66,9 +69,9 @@
                 <tbody>
                     @foreach($breakdown as $elementId => $item)
                         {{-- AC Code Row (Expandable) --}}
-                        <tr style="border-bottom: 1px solid #e5e5e5; cursor: pointer; background: #f9f9f9;" @click="toggleRow({{ $elementId }})">
+                        <tr style="border-bottom: 1px solid #e5e5e5; cursor: pointer; background: #f9f9f9;" @click="toggleRow('{{ $elementId }}')">
                             <td class="px-6 py-3 font-semibold text-gray-900">
-                                <span x-text="`${expandedRows[{{ $elementId }}] ? '▼' : '▶'}  {{ $item['code'] }}`"></span>
+                                <span x-text="`${expandedRows['{{ $elementId }}'] ? '▼' : '▶'}  {{ $item['code'] }}`"></span>
                             </td>
                             <td class="px-6 py-3 text-gray-700 font-medium">{{ $item['name'] }}</td>
                             <td class="px-6 py-3 text-right font-medium text-gray-900" x-text="`${getCurrencySymbol()} ${formatNumber(convert({{ $item['amount'] }}))}`"></td>
@@ -77,7 +80,7 @@
                         {{-- PD Code Rows (Hidden by default) --}}
                         @if(count($item['pdCodes']) > 0)
                             @foreach($item['pdCodes'] as $pdCodeIndex => $pdCode)
-                                <tr x-show="expandedRows[{{ $elementId }}]" x-transition style="border-bottom: 1px solid #e5e5e5; background: #fafafa; cursor: pointer;" @click="togglePdCode('{{ $elementId }}-{{ $pdCodeIndex }}')">
+                                <tr x-show="expandedRows['{{ $elementId }}']" x-transition style="border-bottom: 1px solid #e5e5e5; background: #fafafa; cursor: pointer;" @click="togglePdCode('{{ $elementId }}-{{ $pdCodeIndex }}')">
                                     <td class="px-6 py-3 text-gray-600 text-sm pl-12">
                                         <span style="color: #10b981; font-weight: 500;" x-text="`${expandedPdCodes['{{ $elementId }}-{{ $pdCodeIndex }}'] ? '▼' : '▶'} {{ $pdCode['code'] }}`"></span>
                                     </td>
@@ -88,7 +91,7 @@
                                 {{-- Transaction Rows (Hidden by default) --}}
                                 @if(count($pdCode['transactions']) > 0)
                                     @foreach($pdCode['transactions'] as $transaction)
-                                        <tr x-show="expandedRows[{{ $elementId }}] && expandedPdCodes['{{ $elementId }}-{{ $pdCodeIndex }}']" x-transition style="border-bottom: 1px solid #e5e5e5; background: #ffffff;">
+                                        <tr x-show="expandedRows['{{ $elementId }}'] && expandedPdCodes['{{ $elementId }}-{{ $pdCodeIndex }}']" x-transition style="border-bottom: 1px solid #e5e5e5; background: #ffffff;">
                                             <td class="px-6 py-2 text-gray-500 text-xs pl-20">
                                                 <span>• {{ $transaction['date'] }}</span>
                                             </td>
@@ -120,8 +123,8 @@
 
         <!-- Action Buttons -->
         <div class="flex justify-end gap-4 pt-8">
-            <a href="{{ route('admin.projects.historical') }}" class="px-6 py-2 rounded-lg text-sm font-medium transition" style="background: #f5f5f5; border: 1px solid #e5e5e5; color: #505b93;">
-                Back to Projects
+            <a href="{{ route('project.reports-historical') }}" class="px-6 py-2 rounded-lg text-sm font-medium transition" style="background: #f5f5f5; border: 1px solid #e5e5e5; color: #505b93;">
+                Back to Historical Project Reports
             </a>
         </div>
     </div>

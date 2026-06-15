@@ -58,8 +58,10 @@
                          'body'  => 'The resulting rate library — the "price book" the whole tool runs on — is shown on the Rates and Analytics pages.'],
                         ['color' => '#0ea5e9', 'bg' => '#e0f2fe', 'title' => '6 · Create Estimate',
                          'body'  => 'A Cost Manager picks a region and floor area for a new project, chooses a cost band (Low/Medium/High/High+) per building element, adds extras such as Externals or Contingency — and the Estimator totals it all up live.'],
-                        ['color' => '#a855f7', 'bg' => '#f3e8ff', 'title' => '7 · Forecast & Historical Projects',
-                         'body'  => 'Saving an estimate creates or updates a forecast project. Forecast Projects and Historical Projects then present these — and the historical actuals — as clean, shareable summaries, with Escalation applied to bring older costs up to today\'s prices.'],
+                        ['color' => '#a855f7', 'bg' => '#f3e8ff', 'title' => '7 · Forecast & Historical Project Reports',
+                         'body'  => 'Saving an estimate creates or updates a forecast project. The Forecast Projects report presents it as a clean, shareable summary, with the Inflation Factor applied so older rate data is expressed in today\'s (or the project\'s planned) prices. Historical Project Reports (Administration) do the same for completed projects, showing the actuals exactly as spent.'],
+                        ['color' => '#8b5cf6', 'bg' => '#ede9fe', 'title' => '8 · AI Executive Summary (optional, Beta)',
+                         'body'  => 'On a Forecast Project report, a Cost Manager or Admin can generate a brief AI executive summary of the figures above — a headline paragraph, key cost drivers, and anything worth double-checking — with the option to drill down into a full narrative explanation, comparable historical projects, and a full list of risk flags. The AI only explains and selects from figures already calculated here; it never produces or changes a cost figure.'],
                     ];
                 @endphp
 
@@ -157,22 +159,15 @@
                         gross floor area as last saved from Create Estimate. Each row links through to a polished
                         report broken down by building element and region.
                     </p>
-                    <p class="text-xs mt-2" style="color: #706f6c;"><strong>Linked to:</strong> this is purely a presentation layer over Create Estimate — change the estimate, and the figures here (and the report behind each row) change too.</p>
-                </div>
-
-                {{-- Historical Projects --}}
-                <div class="rounded-lg p-5" style="border: 1px solid #e5e5e5; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.07);">
-                    <div class="flex items-center gap-2 mb-2">
-                        <span class="inline-block w-2.5 h-2.5 rounded-full" style="background:#a855f7;"></span>
-                        <p class="font-semibold text-gray-900">Historical Projects</p>
-                        <span class="ml-auto">{!! $costMgr !!}{!! $admin !!}</span>
-                    </div>
-                    <p class="text-sm text-gray-600 leading-relaxed">
-                        The same idea as Forecast Projects, but for completed projects — presenting their
-                        <em>actual</em> recorded costs (drawn straight from Transactions) as a clean, shareable
-                        summary, with the Escalation rate applied so old costs are expressed in today's money.
+                    <p class="text-sm text-gray-600 leading-relaxed mt-2">
+                        Each report also has an <strong>AI Executive Summary</strong> (Beta) — generate a short
+                        headline paragraph, up to three key cost drivers, and a "worth checking" note, then drill
+                        down into a full narrative explanation, a list of comparable historical projects (with the
+                        AI's reasons for picking them), and the complete set of risk flags. This is advisory only:
+                        the AI explains and selects from the figures already on the page — it never creates or
+                        changes a PKR figure.
                     </p>
-                    <p class="text-xs mt-2" style="color: #706f6c;"><strong>Linked to:</strong> draws on the same transaction data you can browse on Historical Enrichment, but formatted for sharing and printing rather than editing.</p>
+                    <p class="text-xs mt-2" style="color: #706f6c;"><strong>Linked to:</strong> this is purely a presentation layer over Create Estimate — change the estimate, and the figures here (and the report behind each row) change too.</p>
                 </div>
 
                 {{-- Analytics --}}
@@ -195,19 +190,37 @@
                     <p class="text-xs mt-0.5" style="color: #9ca3af;">These are the back-office tabs where the raw data is recorded, checked, and turned into the rate library everything else depends on.</p>
                 </div>
 
-                {{-- Projects (Historical) --}}
+                {{-- Historical Project Reports --}}
                 <div class="rounded-lg p-5" style="border: 1px solid #e5e5e5; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.07);">
                     <div class="flex items-center gap-2 mb-2">
                         <span class="inline-block w-2.5 h-2.5 rounded-full" style="background:#a855f7;"></span>
-                        <p class="font-semibold text-gray-900">Projects (Historical)</p>
+                        <p class="font-semibold text-gray-900">Historical Project Reports</p>
+                        <span class="ml-auto">{!! $admin !!}</span>
+                    </div>
+                    <p class="text-sm text-gray-600 leading-relaxed">
+                        The same idea as the Forecast Projects report, but for completed projects — presenting
+                        their <em>actual</em> recorded costs (drawn straight from Transactions) as a clean,
+                        shareable summary broken down by building element and PD code. These figures are shown
+                        exactly as spent, with no Inflation Factor applied — this is a record of what happened,
+                        not a forecast.
+                    </p>
+                    <p class="text-xs mt-2" style="color: #706f6c;"><strong>Linked to:</strong> draws on the same transaction data you can browse on Historical Enrichment, but formatted for sharing and printing rather than editing. Sits alongside Historical Project Data below — this tab is the report, that one is where its floor area, seating capacity and exclusion flag are edited. Each project's report has an "Edit Enrichment Data →" link that jumps straight to that project on Historical Enrichment.</p>
+                </div>
+
+                {{-- Historical Project Data --}}
+                <div class="rounded-lg p-5" style="border: 1px solid #e5e5e5; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.07);">
+                    <div class="flex items-center gap-2 mb-2">
+                        <span class="inline-block w-2.5 h-2.5 rounded-full" style="background:#a855f7;"></span>
+                        <p class="font-semibold text-gray-900">Historical Project Data</p>
                         <span class="ml-auto">{!! $admin !!}</span>
                     </div>
                     <p class="text-sm text-gray-600 leading-relaxed">
                         The master list of completed projects — the raw material the entire rate-calculation
                         pipeline is built from. From here you can see which historical projects exist, their
-                        region, and their basic details.
+                        region, their transaction-derived totals, and edit floor area, seating capacity and the
+                        "exclude from estimator" flag.
                     </p>
-                    <p class="text-xs mt-2" style="color: #706f6c;"><strong>Linked to:</strong> deeper editing of a historical project's cost data — adding floor area, reviewing its transactions — happens on Historical Enrichment, one tab below.</p>
+                    <p class="text-xs mt-2" style="color: #706f6c;"><strong>Linked to:</strong> deeper editing of a historical project's cost data — adding floor area, reviewing its transactions — also happens on Historical Enrichment, one tab below. Historical Project Reports above presents this same project's transactions as a read-only report.</p>
                 </div>
 
                 {{-- Historical Enrichment --}}
@@ -228,7 +241,7 @@
                         unreliable — incomplete transactions, a guessed floor area — so it's left out the next
                         time rates are recalculated.
                     </p>
-                    <p class="text-xs mt-2" style="color: #706f6c;"><strong>Linked to:</strong> everything you change here directly changes what the next "Recalculate Rates" run on the Rates page produces — and therefore what every Cost Manager sees in the Estimator.</p>
+                    <p class="text-xs mt-2" style="color: #706f6c;"><strong>Linked to:</strong> everything you change here directly changes what the next "Recalculate Rates" run on the Rates page produces — and therefore what every Cost Manager sees in the Estimator. You can also jump here directly from a project's Historical Project Report via its "Edit Enrichment Data →" link.</p>
                 </div>
 
                 {{-- Transactions --}}
@@ -246,7 +259,7 @@
                         <em>Transactions → Import CSV</em> (columns: Date, PD Code, Area Code, AC Code MH,
                         Project Nr, Item Description, Amount).
                     </p>
-                    <p class="text-xs mt-2" style="color: #706f6c;"><strong>Linked to:</strong> this is the foundation everything else stands on. Every total you see — on Historical Enrichment, Historical Projects, Projects (Historical), and ultimately the Regional Rates library — is just these records summed and grouped (by PD code → building element).</p>
+                    <p class="text-xs mt-2" style="color: #706f6c;"><strong>Linked to:</strong> this is the foundation everything else stands on. Every total you see — on Historical Enrichment, Historical Project Reports, Historical Project Data, and ultimately the Regional Rates library — is just these records summed and grouped (by PD code → building element).</p>
                 </div>
 
                 {{-- Rates --}}
@@ -268,21 +281,22 @@
                     <p class="text-xs mt-2" style="color: #706f6c;"><strong>Linked to:</strong> this <em>is</em> the price book — Create Estimate, Analytics, and both Reports tabs all read directly from what's stored here. Run "Recalculate" any time you've imported new transactions or changed enrichment data, so the rates stay current.</p>
                 </div>
 
-                {{-- Escalation --}}
+                {{-- Inflation Factor --}}
                 <div class="rounded-lg p-5" style="border: 1px solid #e5e5e5; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.07);">
                     <div class="flex items-center gap-2 mb-2">
                         <span class="inline-block w-2.5 h-2.5 rounded-full" style="background:#8b5cf6;"></span>
-                        <p class="font-semibold text-gray-900">Escalation</p>
+                        <p class="font-semibold text-gray-900">Inflation Factor</p>
                         <span class="ml-auto">{!! $admin !!}</span>
                     </div>
                     <p class="text-sm text-gray-600 leading-relaxed">
-                        Sets a single monthly cost-escalation percentage (capped at 10%) — essentially Pakistan's
+                        Sets a single monthly cost-inflation percentage (capped at 10%) — essentially Pakistan's
                         construction cost inflation rate — along with a note explaining the figure and a record
-                        of who set it and when. Historical project costs reflect prices at the time they were
-                        actually spent, which could be years ago; escalation lets reports project those costs
-                        forward to today's (or a future project's) prices, so comparisons stay fair.
+                        of who set it and when. The Regional Rates library is built from historical project costs
+                        at the prices they were actually spent, which could be years ago; the Inflation Factor
+                        lets a forecast report uplift those rates forward to the new project's planned start date
+                        (or, if no start date is set, to today's prices), so a forecast stays realistic.
                     </p>
-                    <p class="text-xs mt-2" style="color: #706f6c;"><strong>Linked to:</strong> applied within Historical and Forecast Projects whenever costs from different points in time need to be compared on a like-for-like basis.</p>
+                    <p class="text-xs mt-2" style="color: #706f6c;"><strong>Linked to:</strong> applied only within Forecast Projects reports — Historical Project Reports show actuals exactly as spent, with no uplift.</p>
                 </div>
 
                 {{-- Users --}}
@@ -297,7 +311,7 @@
                     </p>
                     <ul class="text-sm text-gray-600 leading-relaxed list-disc list-inside mt-1 space-y-0.5">
                         <li><strong>Admin</strong> — full access, including every Administration tool described above.</li>
-                        <li><strong>Cost Manager</strong> — can create estimates and view forecast/historical project reports.</li>
+                        <li><strong>Cost Manager</strong> — can create estimates and view forecast project reports.</li>
                         <li><strong>Reviewer</strong> — can view Analytics and the rate library, but can't edit anything.</li>
                     </ul>
                     <p class="text-sm text-gray-600 leading-relaxed mt-2">
@@ -321,7 +335,8 @@
                 <li>To turn "this project cost X" into "this kind of work costs Y per square metre", someone needs to know how big the building is — that's what <strong>Historical Enrichment</strong> records.</li>
                 <li>With both costs and floor areas known, <strong>Recalculate Rates</strong> (on the Rates page) does the maths: PD codes are grouped into building elements, a cost-per-m² is worked out for each project and element, and the results are distilled into Low/Medium/High/High+ rates per region — the <strong>Regional Rates library</strong>.</li>
                 <li>That library is the foundation everything else stands on. <strong>Analytics</strong> lets reviewers browse it; <strong>Create Estimate</strong> lets Cost Managers actually <em>use</em> it to build a forecast for a brand-new project.</li>
-                <li>Saving that forecast creates a <strong>Forecast Project</strong>, listed (with its cost estimate and floor area) on the <strong>Forecast Projects</strong> page and presentable as a polished report — while <strong>Historical Projects</strong> does the same for the actuals, with <strong>Escalation</strong> applied so old costs are expressed in today's prices.</li>
+                <li>Saving that forecast creates a <strong>Forecast Project</strong>, listed (with its cost estimate and floor area) on the <strong>Forecast Projects</strong> page and presentable as a polished report, with the <strong>Inflation Factor</strong> applied so the rates are expressed in the project's planned (or today's) prices — while <strong>Historical Project Reports</strong> does the same for completed projects, showing the actuals exactly as spent.</li>
+                <li>On that report, an optional <strong>AI Executive Summary</strong> can generate a brief headline, key cost drivers, and a "worth checking" note, with drill-downs into a full explanation, comparable historical projects, and risk flags — it only explains figures already on the page and can never create or change one.</li>
                 <li><strong>Users</strong> sits slightly outside this chain — it's where Admins decide who can do what, which is why the sidebar looks different for everyone.</li>
             </ol>
         </div>

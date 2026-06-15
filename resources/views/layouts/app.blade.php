@@ -343,12 +343,6 @@
                                         </svg>
                                         <span>Forecast Projects</span>
                                     </a>
-                                    <a href="{{ route('project.reports-historical') }}" class="nav-link flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium {{ request()->routeIs('project.reports-historical', 'project.report-historical') ? 'nav-active text-gray-900' : 'text-gray-600 border-l-[3px] border-transparent' }}">
-                                        <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: #a855f7;">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                        </svg>
-                                        <span>Historical Projects</span>
-                                    </a>
                                 </div>
                             @endif
 
@@ -370,11 +364,18 @@
                                 <div class="pt-5">
                                     <p class="section-label mb-2">Administration</p>
 
+                                    <a href="{{ route('project.reports-historical') }}" class="nav-link flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium {{ request()->routeIs('project.reports-historical', 'project.report-historical') ? 'nav-active text-gray-900' : 'text-gray-600 border-l-[3px] border-transparent' }}">
+                                        <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: #a855f7;">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        <span>Historical Project Reports</span>
+                                    </a>
+
                                     <a href="{{ route('admin.projects.historical') }}" class="nav-link flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium {{ request()->routeIs('admin.projects.historical') ? 'nav-active text-gray-900' : 'text-gray-600 border-l-[3px] border-transparent' }}">
                                         <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: #a855f7;">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                                         </svg>
-                                        <span>Projects (Historical)</span>
+                                        <span>Historical Project Data</span>
                                     </a>
 
                                     <a href="{{ route('admin.historical-enrichment.index') }}" class="nav-link flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium {{ request()->routeIs('admin.historical-enrichment.*') ? 'nav-active text-gray-900' : 'text-gray-600 border-l-[3px] border-transparent' }}">
@@ -402,7 +403,7 @@
                                         <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: #8b5cf6;">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
                                         </svg>
-                                        <span>Escalation</span>
+                                        <span>Inflation Factor</span>
                                     </a>
 
                                     <a href="{{ route('admin.users.index') }}" class="nav-link flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium {{ request()->routeIs('admin.users.index') ? 'nav-active text-gray-900' : 'text-gray-600 border-l-[3px] border-transparent' }}">

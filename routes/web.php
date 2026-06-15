@@ -4,6 +4,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EstimatorController;
 use App\Http\Controllers\ProjectReportController;
+use App\Http\Controllers\AiAdvisoryController;
 use App\Http\Controllers\AnalyticsController;
 use App\Http\Controllers\Admin\TransactionController;
 use App\Http\Controllers\Admin\ProjectController;
@@ -48,15 +49,19 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->middleware('role:cost_manager,admin')
         ->name('project.report');
 
-    // Project Reports (Historical) - index - accessible to cost_manager and admin
-    Route::get('/reports/historical', [ProjectReportController::class, 'historicalIndex'])
+    // Stage 3: AI Advisory tools for the Project Report - accessible to cost_manager and admin
+    Route::post('/project/{projectId}/ai/summary', [AiAdvisoryController::class, 'summary'])
         ->middleware('role:cost_manager,admin')
-        ->name('project.reports-historical');
-
-    // Project Report (Historical) - detail - accessible to cost_manager and admin
-    Route::get('/project/{projectId}/report-historical', [ProjectReportController::class, 'historical'])
+        ->name('project.ai.summary');
+    Route::post('/project/{projectId}/ai/similar-projects', [AiAdvisoryController::class, 'similarProjects'])
         ->middleware('role:cost_manager,admin')
-        ->name('project.report-historical');
+        ->name('project.ai.similar-projects');
+    Route::post('/project/{projectId}/ai/explain', [AiAdvisoryController::class, 'explain'])
+        ->middleware('role:cost_manager,admin')
+        ->name('project.ai.explain');
+    Route::post('/project/{projectId}/ai/sense-check', [AiAdvisoryController::class, 'senseCheck'])
+        ->middleware('role:cost_manager,admin')
+        ->name('project.ai.sense-check');
 
     // Analytics - accessible to reviewer and admin
     Route::get('/analytics', [AnalyticsController::class, 'index'])
@@ -77,6 +82,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         // Projects (Historical) - admin only
         Route::get('/projects/historical', [ProjectController::class, 'historical'])->name('admin.projects.historical');
+
+        // Historical Project Reports (AC/PD code/transaction drill-down) - admin only
+        Route::get('/reports/historical', [ProjectReportController::class, 'historicalIndex'])->name('project.reports-historical');
+        Route::get('/project/{projectId}/report-historical', [ProjectReportController::class, 'historical'])->name('project.report-historical');
 
         // Rates
         Route::get('/rates', [RatesController::class, 'index'])->name('admin.rates.index');

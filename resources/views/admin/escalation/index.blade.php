@@ -1,6 +1,6 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="text-2xl font-bold text-gray-900">Escalation Rate Management</h2>
+        <h2 class="text-2xl font-bold text-gray-900">Inflation Factor Management</h2>
     </x-slot>
 
     <div class="space-y-8 max-w-3xl">
@@ -13,7 +13,7 @@
 
         {{-- Current rate --}}
         <div class="rounded-lg p-6" style="background: #fffaf0; border: 1px solid #e5e5e5; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.07);">
-            <p class="text-xs font-semibold uppercase tracking-wider mb-3" style="color: #706f6c;">Current Escalation Rate</p>
+            <p class="text-xs font-semibold uppercase tracking-wider mb-3" style="color: #706f6c;">Current Inflation Factor</p>
             @if($current)
                 <p class="text-3xl font-bold text-gray-900">{{ number_format($current->monthly_rate_percent, 3) }}% <span class="text-lg font-normal text-gray-500">per month</span></p>
                 <p class="text-sm mt-2 text-gray-600">≈ {{ number_format($current->monthly_rate_percent * 12, 1) }}% per year</p>
@@ -22,7 +22,7 @@
                 @endif
                 <p class="text-xs mt-2" style="color: #706f6c;">Set {{ $current->created_at->format('d M Y') }} by {{ $current->updatedBy?->name ?? 'system' }}</p>
             @else
-                <p class="text-gray-500">No escalation rate set.</p>
+                <p class="text-gray-500">No inflation factor set.</p>
             @endif
         </div>
 

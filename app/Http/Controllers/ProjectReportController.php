@@ -9,12 +9,38 @@ use App\Models\ExchangeRate;
 use App\Models\Transaction;
 use App\Models\EscalationRate;
 use App\Models\PdCode;
+use App\Models\Setting;
+use App\Services\AiAdvisoryService;
+use App\Services\ForecastService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class ProjectReportController extends Controller
 {
-    public function show($projectId)
+    /**
+     * PD codes with no estimating_element_id (site/external works,
+     * preliminaries, property acquisition, other expenses) are grouped under
+     * these categories on the historical actuals report — see
+     * unmappedPdCodeGroupKey() and historical().
+     */
+    private const UNMAPPED_PD_CODE_GROUPS = [
+        'site'     => ['code' => 'EXT',  'name' => 'Site & External Works'],
+        'prelims'  => ['code' => 'PRE',  'name' => 'Preliminaries & Overheads'],
+        'property' => ['code' => 'PROP', 'name' => 'Property Acquisition'],
+        'other'    => ['code' => 'OTH',  'name' => 'Other Expenses'],
+    ];
+
+    public function __construct(private ForecastService $forecastService)
+    {
+    }
+
+    /**
+     * Build the full set of computed report figures for a project. This is
+     * the single source of truth for both the report view and the Stage 3
+     * AI advisory endpoints — every figure either of them shows is computed
+     * here, once, deterministically.
+     */
+    public function buildReportData($projectId): array
     {
         $project = Project::with('region')->findOrFail($projectId);
 
@@ -29,6 +55,15 @@ class ProjectReportController extends Controller
         $gfa = $project->gross_floor_area ?? 0;
         $adjustmentFactor = (float) ($project->region->cost_adjustment_factor ?? 1.0);
 
+        // Stage 1: shrinkage strength for blending sparse elemental rates
+        // toward the all-region mean (see ForecastService::blendRate).
+        $shrinkageK = (float) Setting::get('forecast_shrinkage_k', 3);
+
+        // Stage 2: uncertainty constant controlling how much the Low/High
+        // band widens as the number of comparable projects shrinks
+        // (see ForecastService::uncertaintyMultiplier).
+        $uncertaintyC = (float) Setting::get('forecast_uncertainty_c', 2);
+
         // Escalation calculation
         $currentEscalationRate = EscalationRate::latest()->first();
         $monthlyRate = $currentEscalationRate ? (float) $currentEscalationRate->monthly_rate_percent : 0.5;
@@ -38,26 +73,30 @@ class ProjectReportController extends Controller
         $baseDataDate = null;
         $escalationApplied = false;
 
-        if ($project->project_start_date) {
-            // One latest-transaction timestamp per comparable project, then average those
-            $avgTimestamp = DB::table('projects')
-                ->join('transactions', 'projects.id', '=', 'transactions.project_id')
-                ->where('projects.project_type', 'historical')
-                ->where('projects.region_id', $project->region_id)
-                ->groupBy('projects.id')
-                ->selectRaw("MAX(strftime('%s', transactions.transaction_date)) as latest_ts")
-                ->get()
-                ->avg('latest_ts');
+        // Escalate to the project's planned start date if known, otherwise to
+        // today — so a forecast with no start date is still uplifted to
+        // current price levels rather than left at the historical data's vintage.
+        $escalationTargetDate = $project->project_start_date
+            ? \Carbon\Carbon::parse($project->project_start_date)->startOfMonth()
+            : now()->startOfMonth();
 
-            if ($avgTimestamp) {
-                $baseDataDate = \Carbon\Carbon::createFromTimestamp((int) $avgTimestamp)->startOfMonth();
-                $projectStart = \Carbon\Carbon::parse($project->project_start_date)->startOfMonth();
-                $escalationMonths = (int) round($baseDataDate->diffInMonths($projectStart, false));
+        // One latest-transaction timestamp per comparable project, then average those
+        $avgTimestamp = DB::table('projects')
+            ->join('transactions', 'projects.id', '=', 'transactions.project_id')
+            ->where('projects.project_type', 'historical')
+            ->where('projects.region_id', $project->region_id)
+            ->groupBy('projects.id')
+            ->selectRaw("MAX(strftime('%s', transactions.transaction_date)) as latest_ts")
+            ->get()
+            ->avg('latest_ts');
 
-                if ($escalationMonths !== 0) {
-                    $escalationFactor = pow(1 + $monthlyRate / 100, $escalationMonths);
-                    $escalationApplied = true;
-                }
+        if ($avgTimestamp) {
+            $baseDataDate = \Carbon\Carbon::createFromTimestamp((int) $avgTimestamp)->startOfMonth();
+            $escalationMonths = (int) round($baseDataDate->diffInMonths($escalationTargetDate, false));
+
+            if ($escalationMonths !== 0) {
+                $escalationFactor = pow(1 + $monthlyRate / 100, $escalationMonths);
+                $escalationApplied = true;
             }
         }
 
@@ -82,6 +121,11 @@ class ProjectReportController extends Controller
         // Get all transactions for this project to build PD code breakdown
         $transactions = Transaction::where('project_id', $project->id)->get();
 
+        // Regional adjustment + escalation combined factor, applied to
+        // every blended rate below (and reused for the Stage 2 area-based
+        // spread scaling further down).
+        $combinedFactor = $adjustmentFactor * $escalationFactor;
+
         foreach ($elements as $element) {
             $rate = $ratesMap->get($element->id);
             if (!$rate) continue;
@@ -95,27 +139,30 @@ class ProjectReportController extends Controller
                 default          => ['label' => 'No data', 'count' => $dataCount, 'color' => '#374151', 'bg' => '#f3f4f6'],
             };
 
-            $combinedFactor = $adjustmentFactor * $escalationFactor;
+            // Stage 1: blend the raw local rates toward the all-region mean
+            // before applying the regional adjustment and escalation.
+            $blend = $this->forecastService->blendRegionalRate($rate, $shrinkageK);
 
             $breakdown[$element->id] = [
                 'code' => $element->code,
                 'name' => $element->name,
                 'confidence' => $confidence,
+                'blend' => $blend,
                 'low' => [
-                    'rate' => (float) $rate->low_rate * $combinedFactor,
-                    'cost' => (float) $rate->low_rate * $combinedFactor * $gfa,
+                    'rate' => $blend['low'] * $combinedFactor,
+                    'cost' => $blend['low'] * $combinedFactor * $gfa,
                 ],
                 'medium' => [
-                    'rate' => (float) $rate->medium_rate * $combinedFactor,
-                    'cost' => (float) $rate->medium_rate * $combinedFactor * $gfa,
+                    'rate' => $blend['medium'] * $combinedFactor,
+                    'cost' => $blend['medium'] * $combinedFactor * $gfa,
                 ],
                 'high' => [
-                    'rate' => (float) $rate->high_rate * $combinedFactor,
-                    'cost' => (float) $rate->high_rate * $combinedFactor * $gfa,
+                    'rate' => $blend['high'] * $combinedFactor,
+                    'cost' => $blend['high'] * $combinedFactor * $gfa,
                 ],
                 'high_plus' => [
-                    'rate' => (float) $rate->high_plus_rate * $combinedFactor,
-                    'cost' => (float) $rate->high_plus_rate * $combinedFactor * $gfa,
+                    'rate' => $blend['high_plus'] * $combinedFactor,
+                    'cost' => $blend['high_plus'] * $combinedFactor * $gfa,
                 ],
                 'pdCodes' => [], // Will be populated below
             ];
@@ -193,15 +240,39 @@ class ProjectReportController extends Controller
 
         // ── Priority 5: Dual-Metric Forecast Comparison ────────────────────────
 
-        // Area-based totals (already computed above)
-        $areaLow  = $bandTotals['low']['subtotal'];
+        // Area-based Mid (unchanged by Stage 2 — see plan step 2d)
         $areaMid  = $bandTotals['medium']['subtotal'];
-        $areaHigh = $bandTotals['high']['subtotal'];
         $avgAreaRatePerM2 = $gfa > 0 ? $areaMid / $gfa : 0;
+
+        // Stage 2: widen the area-based Low/High band based on how many
+        // comparable projects support it. base_spread is the standard
+        // deviation of each comparable project's total rate (PKR/m2,
+        // summed across elements); if fewer than 2 local comparables
+        // exist, fall back to the spread across all regions.
+        $areaRates = $this->forecastService->areaRatesForRegion($project->region_id);
+        $nArea = count($areaRates);
+        $areaUsedBroadSpread = $nArea < 2;
+        $areaBaseSpreadPerM2 = $this->forecastService->standardDeviation(
+            $areaUsedBroadSpread ? $this->forecastService->broadAreaRates() : $areaRates
+        );
+
+        // Scale the per-m2 rate spread into total-subtotal terms via the
+        // same path construction costs take to become the subtotal
+        // (x combinedFactor x gfa x markup ratio for externals/overhead).
+        $markupRatio = $bandTotals['medium']['construction'] > 0
+            ? $bandTotals['medium']['subtotal'] / $bandTotals['medium']['construction']
+            : 1.0;
+        $areaSpreadTotal = $areaBaseSpreadPerM2 * $combinedFactor * $gfa * $markupRatio;
+
+        $areaBand = $this->forecastService->widenBand($areaMid, $areaSpreadTotal, $nArea, $uncertaintyC);
+        $areaLow  = $areaBand['low'];
+        $areaHigh = $areaBand['high'];
 
         // Seating-based calculation
         $seatLow = $seatMid = $seatHigh = $avgCostPerSeat = null;
         $seatComparables = 0;
+        $seatBand = null;
+        $seatUsedBroadSpread = false;
 
         if ($project->seating_capacity) {
             $seatProjects = DB::table('projects')
@@ -246,28 +317,37 @@ class ProjectReportController extends Controller
                 if ($seatComparables >= 3) {
                     usort($weightedItems, fn($a, $b) => $a['cost'] <=> $b['cost']);
                     $cumWeight = 0;
-                    $p25 = $p50 = $p75 = null;
+                    $p50 = null;
                     foreach ($weightedItems as $item) {
                         $cumWeight += $item['weight'];
-                        $pct = $cumWeight / $totalWeight;
-                        if ($p25 === null && $pct >= 0.25) $p25 = $item['cost'];
-                        if ($p50 === null && $pct >= 0.50) $p50 = $item['cost'];
-                        if ($p75 === null && $pct >= 0.75) $p75 = $item['cost'];
+                        if ($p50 === null && ($cumWeight / $totalWeight) >= 0.50) {
+                            $p50 = $item['cost'];
+                        }
                     }
-                    $perSeatLow  = $p25 ?? $weightedMean * 0.85;
-                    $perSeatMid  = $p50 ?? $weightedMean;
-                    $perSeatHigh = $p75 ?? $weightedMean * 1.15;
+                    $perSeatMid = $p50 ?? $weightedMean;
                 } else {
-                    $perSeatLow  = $weightedMean * 0.85;
-                    $perSeatMid  = $weightedMean;
-                    $perSeatHigh = $weightedMean * 1.15;
+                    $perSeatMid = $weightedMean;
                 }
 
                 $seats          = $project->seating_capacity;
-                $seatLow        = $perSeatLow  * $seats;
                 $seatMid        = $perSeatMid  * $seats;
-                $seatHigh       = $perSeatHigh * $seats;
                 $avgCostPerSeat = $weightedMean;
+
+                // Stage 2: widen the seat-based Low/High band based on how
+                // many comparable projects support it. base_spread is the
+                // standard deviation of cost-per-seat across comparables;
+                // if fewer than 2 local comparables exist, fall back to the
+                // spread across all regions.
+                $seatLocalRates = array_column($weightedItems, 'cost');
+                $seatUsedBroadSpread = $seatComparables < 2;
+                $seatBaseSpreadPerSeat = $this->forecastService->standardDeviation(
+                    $seatUsedBroadSpread ? $this->forecastService->broadSeatRates() : $seatLocalRates
+                );
+                $seatSpreadTotal = $seatBaseSpreadPerSeat * $seats;
+
+                $seatBand = $this->forecastService->widenBand($seatMid, $seatSpreadTotal, $seatComparables, $uncertaintyC);
+                $seatLow  = $seatBand['low'];
+                $seatHigh = $seatBand['high'];
             }
         }
 
@@ -304,7 +384,7 @@ class ProjectReportController extends Controller
 
         $exchangeRates['PKR'] = 1.0;
 
-        return view('reports.project', [
+        return [
             'project'              => $project,
             'breakdown'            => $breakdown,
             'bandTotals'           => $bandTotals,
@@ -317,6 +397,7 @@ class ProjectReportController extends Controller
             'escalationFactor'     => $escalationFactor,
             'monthlyRate'          => $monthlyRate,
             'baseDataDate'         => $baseDataDate,
+            'escalationTargetDate' => $escalationTargetDate,
             // Priority 5
             'areaLow'              => $areaLow,
             'areaMid'              => $areaMid,
@@ -330,7 +411,23 @@ class ProjectReportController extends Controller
             'divergencePct'        => $divergencePct,
             'divergenceWarning'    => $divergenceWarning,
             'confidenceScore'      => $confidenceScore,
-        ]);
+            // Stage 2: band-width context
+            'areaBand'             => $areaBand,
+            'areaUsedBroadSpread'  => $areaUsedBroadSpread,
+            'seatBand'             => $seatBand,
+            'seatUsedBroadSpread'  => $seatUsedBroadSpread,
+            // Stage 3: shrinkage/uncertainty inputs, useful as AI context
+            'shrinkageK'           => $shrinkageK,
+            'uncertaintyC'         => $uncertaintyC,
+        ];
+    }
+
+    public function show($projectId)
+    {
+        $data = $this->buildReportData($projectId);
+        $data['aiConfigured'] = app(AiAdvisoryService::class)->isConfigured();
+
+        return view('reports.project', $data);
     }
 
     public function historicalIndex()
@@ -406,6 +503,54 @@ class ProjectReportController extends Controller
             }
         }
 
+        // Some PD codes (site/external works, preliminaries & overheads,
+        // property acquisition, other expenses) aren't mapped to any of the
+        // 9 estimating elements above. Group their transactions here so this
+        // report's total reconciles with the admin transaction-derived total
+        // for the same project, instead of silently dropping them.
+        $unmappedGroups = [];
+        foreach (PdCode::whereNull('estimating_element_id')->get() as $pdCode) {
+            $pdTransactions = $transactions->filter(fn($t) => $t->pd_code_id == $pdCode->id);
+
+            if ($pdTransactions->isEmpty()) {
+                continue;
+            }
+
+            $totalAmount = (float) $pdTransactions->sum('amount');
+
+            $transactionLines = [];
+            foreach ($pdTransactions as $transaction) {
+                $transactionLines[] = [
+                    'date' => $transaction->transaction_date->format('d/m/Y'),
+                    'description' => $transaction->item_description,
+                    'amount' => (float) $transaction->amount,
+                ];
+            }
+            usort($transactionLines, fn($a, $b) => strtotime($a['date']) - strtotime($b['date']));
+
+            $groupKey = $this->unmappedPdCodeGroupKey($pdCode->code);
+            $unmappedGroups[$groupKey]['amount'] = ($unmappedGroups[$groupKey]['amount'] ?? 0) + $totalAmount;
+            $unmappedGroups[$groupKey]['pdCodes'][] = [
+                'code' => $pdCode->code,
+                'name' => $pdCode->name,
+                'amount' => $totalAmount,
+                'transactions' => $transactionLines,
+            ];
+        }
+
+        foreach (self::UNMAPPED_PD_CODE_GROUPS as $key => $group) {
+            if (!isset($unmappedGroups[$key])) {
+                continue;
+            }
+
+            $breakdown['group_' . $key] = [
+                'code' => $group['code'],
+                'name' => $group['name'],
+                'amount' => $unmappedGroups[$key]['amount'],
+                'pdCodes' => $unmappedGroups[$key]['pdCodes'],
+            ];
+        }
+
         // Calculate total
         $totalAmount = array_sum(array_map(fn($item) => $item['amount'], $breakdown));
 
@@ -425,5 +570,19 @@ class ProjectReportController extends Controller
             'totalAmount' => $totalAmount,
             'exchangeRates' => $exchangeRates,
         ]);
+    }
+
+    /**
+     * Which UNMAPPED_PD_CODE_GROUPS category a PD code with no
+     * estimating_element_id falls into, based on its code prefix.
+     */
+    private function unmappedPdCodeGroupKey(string $code): string
+    {
+        return match(true) {
+            str_starts_with($code, '20G') => 'site',
+            str_starts_with($code, '10S'), str_starts_with($code, '19S') => 'prelims',
+            str_starts_with($code, '01P') => 'property',
+            default => 'other',
+        };
     }
 }

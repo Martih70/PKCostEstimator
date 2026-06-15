@@ -84,7 +84,7 @@
                 <input type="date" id="project_start_date" name="project_start_date" value="{{ old('project_start_date') }}"
                     class="w-full rounded-lg px-4 py-2 text-sm focus:outline-none transition-all"
                     style="background: white; border: 1px solid #e5e5e5; color: #1b1b18;">
-                <p class="text-xs mt-1" style="color: #706f6c;">Anticipated start date. Used to calculate time-based cost escalation from historic data.</p>
+                <p class="text-xs mt-1" style="color: #706f6c;">Anticipated start date. Used to apply the Inflation Factor to historic cost data. If left blank, costs are inflated to today's prices instead.</p>
                 @error('project_start_date')
                     <p class="text-sm mt-1" style="color: #ef4444;">{{ $message }}</p>
                 @enderror

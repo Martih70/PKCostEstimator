@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <div class="flex items-center justify-between">
-            <h2 class="text-2xl font-bold text-gray-900">Project Reports (Historical)</h2>
+            <h2 class="text-2xl font-bold text-gray-900">Historical Project Reports</h2>
         </div>
     </x-slot>
 
